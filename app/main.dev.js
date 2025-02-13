@@ -88,4 +88,15 @@ app.on('ready', async () => {
 
   const menuBuilder = new MenuBuilder(mainWindow);
   menuBuilder.buildMenu();
+
+  // Replace or update the devtron installation
+  if (process.env.NODE_ENV === 'development') {
+    try {
+      // Comment out or remove devtron for now as it's causing issues
+      // await installExtension(DEVTRON);
+      await installExtension(REACT_DEVELOPER_TOOLS);
+    } catch (e) {
+      console.log('Extension loading error:', e);
+    }
+  }
 });

@@ -5,13 +5,13 @@
 const path = require('path');
 const webpack = require('webpack');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 const CopyPlugin = require('copy-webpack-plugin');
 const merge = require('webpack-merge');
 const TerserPlugin = require('terser-webpack-plugin');
 const baseConfig = require('./webpack.config.base');
 const CheckNodeEnv = require('./internals/scripts/CheckNodeEnv');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 
 CheckNodeEnv('production');
 
@@ -177,17 +177,11 @@ module.exports = merge.smart(baseConfig, {
   optimization: {
     minimizer: [
       new TerserPlugin({
-        parallel: true,
-        sourceMap: true
-      }),
-      new OptimizeCSSAssetsPlugin({
-        cssProcessorOptions: {
-          map: {
-            inline: false,
-            annotation: true
-          }
+        terserOptions: {
+          sourceMap: true
         }
-      })
+      }),
+      new CssMinimizerPlugin()
     ]
   },
 
@@ -209,9 +203,11 @@ module.exports = merge.smart(baseConfig, {
       filename: 'style.css'
     }),
 
-    new CopyPlugin([
-      { from: './app/about/about.css', to: 'about.css' },
-    ]),
+    new CopyPlugin({
+      patterns: [
+        { from: './app/about/about.css', to: 'about.css' },
+      ]
+    }),
 
     new BundleAnalyzerPlugin({
       analyzerMode:

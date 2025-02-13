@@ -4,37 +4,27 @@
     <meta charset="utf-8">
     <title>BloomRPC</title>
     <script>
-      (function() {
-        if (!process.env.HOT) {
+      // Define process.env for renderer
+      window.process = {
+        env: {
+          NODE_ENV: process.env.NODE_ENV,
+          START_HOT: process.env.START_HOT,
+        }
+      };
+
+      (() => {
+        if (process?.env?.NODE_ENV !== 'development') {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
           link.href = './dist/style.css';
-          // HACK: Writing the script path should be done with webpack
           document.getElementsByTagName('head')[0].appendChild(link);
         }
-      }());
+      })();
     </script>
   </head>
   <body>
     <div id="root"></div>
-    <script>
-      {
-        const scripts = [];
-
-        // Dynamically insert the bundled app script in the renderer process
-        const port = process.env.PORT || 1212;
-        scripts.push(
-          (process.env.HOT)
-            ? 'http://localhost:' + port + '/dist/renderer.dev.js'
-            : './dist/app.renderer.prod.js'
-        );
-
-        document.write(
-          scripts
-            .map(script => `<script defer src="${script}"><\/script>`)
-            .join('')
-        );
-      }
-    </script>
+    <!-- Remove or update this script tag - webpack will inject the correct one -->
+    <!-- <script src="./dist/app.renderer.prod.js"></script> -->
   </body>
 </html>

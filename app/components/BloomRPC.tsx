@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { Layout, notification } from 'antd';
-import arrayMove from 'array-move';
 import { Sidebar } from './Sidebar';
 import { TabData, TabList } from './TabList';
 import {loadProtos, ProtoFile, ProtoService} from '../behaviour';
@@ -25,15 +24,27 @@ export interface EditorTabs {
   tabs: TabData[]
 }
 
+// Add local implementation
+const arrayMove = <T,>(array: T[], from: number, to: number): T[] => {
+  const newArray = array.slice();
+  newArray.splice(to < 0 ? newArray.length + to : to, 0, newArray.splice(from, 1)[0]);
+  return newArray;
+};
+
 export function BloomRPC() {
+  console.log('BloomRPC component starting render');
 
   const [protos, setProtosState] = useState<ProtoFile[]>([]);
+  console.log('protos state:', protos);
+
   const [editorTabs, setEditorTabs] = useState<EditorTabs>({
     activeKey: "0",
     tabs: [],
   });
+  console.log('editorTabs state:', editorTabs);
 
   const [environments, setEnvironments] = useState<EditorEnvironment[]>(getEnvironments());
+  console.log('environments state:', environments);
 
   function setTabs(props: EditorTabs) {
     setEditorTabs(props);
@@ -50,25 +61,27 @@ export function BloomRPC() {
     hydrateEditor(setProtos, setTabs);
   }, []);
 
+  console.log('BloomRPC about to return JSX');
   return (
     <Layout style={styles.layout}>
-      <Layout>
-        <Layout.Sider style={styles.sider} width={ 300 }>
-          <Sidebar
-            protos={protos}
-            onProtoUpload={handleProtoUpload(setProtos, protos)}
-            onReload={() => {
-              hydrateEditor(setProtos, setEditorTabs);
-            }}
-            onMethodSelected={handleMethodSelected(editorTabs, setTabs)}
-            onDeleteAll={() => {
-              setProtos([]);
-            }}
-            onMethodDoubleClick={handleMethodDoubleClick(editorTabs, setTabs)}
-          />
-        </Layout.Sider>
+      <Layout.Sider style={styles.sider} width={300}>
+        <Sidebar
+          protos={protos}
+          onProtoUpload={handleProtoUpload(setProtos, protos)}
+          onReload={() => {
+            console.log('Sidebar reload clicked');
+            hydrateEditor(setProtos, setEditorTabs);
+          }}
+          onMethodSelected={handleMethodSelected(editorTabs, setTabs)}
+          onDeleteAll={() => {
+            setProtos([]);
+          }}
+          onMethodDoubleClick={handleMethodDoubleClick(editorTabs, setTabs)}
+        />
+      </Layout.Sider>
 
-        <Layout.Content>
+      <Layout style={{ width: 'calc(100% - 300px)' }}>
+        <Layout.Content style={styles.content}>
           <TabList
             tabs={editorTabs.tabs || []}
             onDragEnd={({oldIndex, newIndex}) => {
@@ -127,7 +140,6 @@ export function BloomRPC() {
           />
         </Layout.Content>
       </Layout>
-
     </Layout>
   );
 }
@@ -209,7 +221,9 @@ async function loadTabs(editorTabs: EditorTabsStorage): Promise<EditorTabs> {
  */
 function handleProtoUpload(setProtos: React.Dispatch<ProtoFile[]>, protos: ProtoFile[]) {
   return function (newProtos: ProtoFile[], err: Error | void) {
+    console.log('Proto upload callback:', { newProtos, err });
     if (err) {
+      console.error('Proto upload error:', err);
       notification.error({
         message: "Error while importing protos",
         description: err.message,
@@ -288,19 +302,23 @@ function handleMethodDoubleClick(editorTabs: EditorTabs, setTabs: React.Dispatch
 
 const styles = {
   layout: {
-    height: "100vh"
-  },
-  header: {
-    color: "#fff",
-    fontWeight: 900,
-    fontSize: 20,
+    height: "100vh",
+    width: "100vw",
     display: "flex",
-    justifyContent: "space-between",
   },
   sider: {
-    zIndex: 20,
+    zIndex: 1,
+    width: 300,
+    minWidth: 300,
+    maxWidth: 300,
     borderRight: "1px solid rgba(0, 21, 41, 0.18)",
     backgroundColor: "white",
     boxShadow: "3px 0px 4px 0px rgba(0,0,0,0.10)",
+    overflow: "auto"
   },
+  content: {
+    flex: 1,
+    overflow: "auto",
+    width: '100%'
+  }
 };

@@ -30,7 +30,9 @@ module.exports = merge.smart(baseConfig, {
     minimizer: [
       new TerserPlugin({
         parallel: true,
-        sourceMap: true
+        terserOptions: {
+          sourceMap: true
+        }
       })
     ]
   },
@@ -69,5 +71,9 @@ module.exports = merge.smart(baseConfig, {
   node: {
     __dirname: false,
     __filename: false
+  },
+
+  module: {
+    rules: []
   }
 });

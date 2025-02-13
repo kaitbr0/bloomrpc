@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Icon, notification } from 'antd';
+import { notification } from 'antd';
 import * as Mousetrap from 'mousetrap'
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
 import {
@@ -12,6 +12,7 @@ import {
 } from './actions';
 import { ControlsStateProps } from './Controls';
 import { GRPCEventType, GRPCRequest, ResponseMetaInformation, GRPCEventEmitter, GRPCWebRequest } from '../../behaviour';
+import { PlayCircleFilled, PauseCircleFilled } from '@ant-design/icons';
 
 export const makeRequest = ({ dispatch, state, protoInfo }: ControlsStateProps) => {
   // Do nothing if not set
@@ -131,12 +132,11 @@ export function PlayButton({ dispatch, state, protoInfo, active }: ControlsState
   ])
 
   return (
-    <Icon
-      type={state.loading ? "pause-circle" : "play-circle"}
-      theme="filled" style={{ ...styles.playIcon, ...(state.loading ? { color: "#ea5d5d" } : {}) }}
-      onClick={() => makeRequest({ dispatch, state, protoInfo })}
-    />
-  )
+    state.loading ? 
+      <PauseCircleFilled style={{ ...styles.playIcon, color: "#ea5d5d" }} onClick={() => makeRequest({ dispatch, state, protoInfo })} /> 
+      : 
+      <PlayCircleFilled style={styles.playIcon} onClick={() => makeRequest({ dispatch, state, protoInfo })} />
+  );
 }
 
 const styles = {

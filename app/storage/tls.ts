@@ -2,18 +2,24 @@
 import * as Store from "electron-store";
 import { Certificate } from "../behaviour";
 
-const TLSStore = new Store({
-  name: "tls",
-});
+// const TLSStore = new Store({
+//   name: "tls",
+// });
 
 
-const TLS_KEYS = {
-  CERTIFICATES: 'certificates'
-};
+// const TLS_KEYS = {
+//   CERTIFICATES: 'certificates'
+// };
 
+
+export interface TLSConfig {
+  rootCert?: string;
+  privateKey?: string;
+  certChain?: string;
+}
 
 export function storeTLSList(certs: Certificate[]) {
-  TLSStore.set(TLS_KEYS.CERTIFICATES, certs);
+  console.log('Storage disabled - storeTLSList:', certs);
 }
 
 export function getTLSList() {
@@ -21,9 +27,17 @@ export function getTLSList() {
     useServerCertificate: true,
     rootCert: { fileName: "Server Certificate", filePath: "" },
   };
-  return TLSStore.get(TLS_KEYS.CERTIFICATES, [serverCertificate]);
+  return [serverCertificate];
+}
+
+export function storeTLSClientConfig(config: TLSConfig) {
+  console.log('Storage disabled - storeTLSClientConfig:', config);
+}
+
+export function getTLSClientConfig(): TLSConfig {
+  return {};
 }
 
 export function clearTLS() {
-  return TLSStore.clear();
+  console.log('Storage disabled - clearTLS');
 }

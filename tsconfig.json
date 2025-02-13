@@ -18,7 +18,8 @@
 
     "sourceMap": true,
     "lib": ["es2015", "es2017", "es2016", "dom"],
-    "outDir": "dist"
+    "outDir": "dist",
+    "types": []
   },
   "files": ["app/index.tsx"],
   "include": [

@@ -1,23 +1,12 @@
-// @ts-ignore
-import * as Store from "electron-store";
-
-
-const ImportPathsStore = new Store({
-  name: "importPaths",
-});
-
-const KEYS = {
-  IMPORT_PATH: "paths"
-};
-
+// Temporarily disable electron-store
 export function storeImportPaths(paths: string[]) {
-  ImportPathsStore.set(KEYS.IMPORT_PATH, paths);
+  console.log('Storage disabled:', paths);
 }
 
 export function getImportPaths(): string[] {
-  return ImportPathsStore.get(KEYS.IMPORT_PATH, [""]);
+  return [""];
 }
 
 export function clearImportPaths() {
-  return ImportPathsStore.clear();
+  console.log('Storage clear disabled');
 }

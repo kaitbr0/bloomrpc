@@ -13,6 +13,7 @@ const merge = require('webpack-merge');
 const { spawn } = require('child_process');
 const baseConfig = require('./webpack.config.base');
 const CheckNodeEnv = require('./internals/scripts/CheckNodeEnv');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 CheckNodeEnv('development');
 
@@ -26,16 +27,14 @@ module.exports = merge.smart(baseConfig, {
 
   target: 'electron-renderer',
 
-  entry: [
-    'react-hot-loader/patch',
-    `webpack-dev-server/client?http://localhost:${port}/`,
-    'webpack/hot/only-dev-server',
-    path.join(__dirname, 'app/index.tsx')
-  ],
+  entry: {
+    renderer: path.join(__dirname, 'app', 'index')
+  },
 
   output: {
-    publicPath: `http://localhost:${port}/dist/`,
-    filename: 'renderer.dev.js'
+    path: path.join(__dirname, 'app', 'dist'),
+    publicPath: '/',
+    filename: '[name].js'
   },
 
   module: {
@@ -163,15 +162,32 @@ module.exports = merge.smart(baseConfig, {
       {
         test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
         use: 'url-loader'
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+        include: [
+          path.join(__dirname, 'app'),
+          path.join(__dirname, 'node_modules/antd'),
+          path.join(__dirname, 'app/node_modules/antd')
+        ]
+      },
+      {
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'ts-loader',
+          options: {
+            transpileOnly: true
+          }
+        }
       }
     ]
   },
 
   plugins: [
-    new webpack.HotModuleReplacementPlugin({
-      multiStep: true
-    }),
-
+    // Remove or comment out HotModuleReplacementPlugin if it exists
+    // new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
 
     /**
@@ -195,41 +211,46 @@ module.exports = merge.smart(baseConfig, {
     }),
     new webpack.DefinePlugin({
       __static: `"${path.join(process.cwd(), "static").replace(/\\/g, "\\\\")}"`,
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+      'process.env.START_HOT': JSON.stringify(process.env.START_HOT)
+    }),
+    new HtmlWebpackPlugin({
+      filename: 'app.html',
+      template: path.join(__dirname, 'app', 'app.html'),
+      inject: 'body',
+      minify: false,
+      chunks: ['renderer']
     }),
   ],
 
-  externals: ['grpc'],
+  externals: {
+    'grpc': 'commonjs2 @grpc/grpc-js',
+    'electron-store': 'commonjs2 electron-store'
+  },
   node: {
     __dirname: false,
     __filename: false
   },
 
   devServer: {
-    port,
-    publicPath,
-    compress: true,
-    // noInfo: true,
-    // stats: 'errors-only',
-    inline: true,
-    lazy: false,
-    hot: true,
-    headers: { 'Access-Control-Allow-Origin': '*' },
-    contentBase: path.join(__dirname, 'dist'),
-    historyApiFallback: {
-      verbose: true,
-      disableDotRule: false
+    port: 1213,
+    host: 'localhost',
+    hot: true,  // Re-enable hot reload
+    liveReload: true,  // Re-enable live reload
+    static: {
+      directory: path.join(__dirname, 'app'),
+      publicPath: '/'
     },
-    before() {
-      if (process.env.START_HOT) {
-        console.log('Starting Main Process...');
-        spawn('npm', ['run', 'start-main-dev'], {
-          shell: true,
-          env: process.env,
-          stdio: 'inherit'
-        })
-          .on('close', code => process.exit(code))
-          .on('error', spawnError => console.error(spawnError));
-      }
-    }
+    devMiddleware: {
+      publicPath: '/',
+      writeToDisk: true
+    },
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    historyApiFallback: true
+  },
+
+  resolve: {
+    extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
+    modules: [path.join(__dirname, 'app'), 'node_modules']
   }
 });

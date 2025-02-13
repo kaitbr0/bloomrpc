@@ -38,7 +38,14 @@ module.exports = {
     rules: [
       {
         test: /\.tsx?$/,
-        loaders: ['ts-loader'],
+        use: [
+          {
+            loader: 'ts-loader',
+            options: {
+              transpileOnly: true
+            }
+          }
+        ],
         exclude: /node_modules/
       }
     ]
@@ -62,7 +69,6 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'production'
     }),
-    new webpack.NamedModulesPlugin(),
     new webpack.DefinePlugin({
       PRODUCT_NAME: JSON.stringify(pkgDep.productName),
       COPYRIGHT: JSON.stringify(pkgDep.license),
@@ -71,6 +77,7 @@ module.exports = {
       LICENSE: JSON.stringify(pkgDep.license),
       BUG_REPORT_URL: JSON.stringify(pkgDep.bugs.url),
       VERSION: JSON.stringify(pkgDep.version)
-    })
-  ]
+    }),
+  ],
+  mode: 'development'
 };

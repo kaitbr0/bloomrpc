@@ -1,7 +1,7 @@
 import { EventEmitter } from "events";
-import { credentials, Metadata, ServiceError } from "grpc";
+import { credentials, Metadata, ServiceError } from "@grpc/grpc-js";
 import { ProtoInfo } from './protoInfo';
-import * as grpc from 'grpc';
+import * as grpc from '@grpc/grpc-js';
 import * as fs from "fs";
 import { Certificate } from "./importCertificates";
 import * as grpcWeb from 'grpc-web'

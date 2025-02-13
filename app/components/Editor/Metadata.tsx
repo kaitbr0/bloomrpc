@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Icon } from 'antd';
 import AceEditor from 'react-ace';
-import Resizable from 're-resizable';
+import { Resizable } from 're-resizable';
 import { storeMetadata } from "../../storage";
 import { useState } from "react";
+import { UpOutlined, DownOutlined } from '@ant-design/icons';
 
 interface MetadataProps {
   onClickMetadata: () => void,
@@ -43,7 +43,7 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
               }
               onClickMetadata()
             }}
-          > {visibile ? <Icon type="down"/> : <Icon type="up"/>} METADATA </a>
+          > {visibile ? <DownOutlined /> : <UpOutlined />} METADATA </a>
         </div>
 
         <div>
