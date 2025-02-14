@@ -39,41 +39,47 @@ export function Request({onChangeData, commands, data, streamData, active}: Requ
     displayIndentGuides: true
   };
 
+  const tabItems = [
+    {
+      key: editorTabKey,
+      label: "Editor",
+      children: (
+        <AceEditor
+          ref={aceEditor}
+          style={{ background: "#fff" }}
+          width={"100%"}
+          height={"calc(100vh - 185px)"}
+          mode="json"
+          theme="textmate"
+          name="inputs"
+          fontSize={13}
+          cursorStart={2}
+          onChange={onChangeData}
+          commands={commands}
+          showPrintMargin={false}
+          showGutter
+          highlightActiveLine={false}
+          value={data}
+          setOptions={editorOptions}
+          tabSize={2}
+        />
+      )
+    },
+    ...streamData.map((data, key) => ({
+      key: `${key}`,
+      label: `Stream ${key + 1}`,
+      children: <Viewer output={data} />
+    }))
+  ];
+
   return (
     <>
       <Tabs
         defaultActiveKey={editorTabKey}
         tabPosition={"top"}
         style={{width: "100%"}}
-      >
-        <Tabs.TabPane tab="Editor" key={editorTabKey}>
-          <AceEditor
-            ref={aceEditor}
-            style={{ background: "#fff" }}
-            width={"100%"}
-            height={"calc(100vh - 185px)"}
-            mode="json"
-            theme="textmate"
-            name="inputs"
-            fontSize={13}
-            cursorStart={2}
-            onChange={onChangeData}
-            commands={commands}
-            showPrintMargin={false}
-            showGutter
-            highlightActiveLine={false}
-            value={data}
-            setOptions={editorOptions}
-            tabSize={2}
-          />
-        </Tabs.TabPane>
-
-        {streamData.map((data, key) => (
-          <Tabs.TabPane tab={`Stream ${key + 1}`} key={`${key}`}>
-            <Viewer output={data} />
-          </Tabs.TabPane>
-        ))}
-      </Tabs>
+        items={tabItems}
+      />
     </>
   )
 }

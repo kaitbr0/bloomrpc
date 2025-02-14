@@ -50,6 +50,41 @@ export function TabList({ tabs, activeKey, onChange, onDelete, onDragEnd, onEdit
     }
   });
 
+  const tabItems = tabs.length === 0 ? [{
+    key: "0",
+    label: "New Tab",
+    closable: false,
+    style: { height: "100%" },
+    children: (
+      <Editor
+        active={true}
+        environmentList={environmentList}
+        onEnvironmentListChange={onEnvironmentChange}
+      />
+    )
+  }] : tabs.map((tab) => ({
+    key: tab.tabKey,
+    label: `${tab.service.serviceName}.${tab.methodName}`,
+    closable: true,
+    style: { height: "100%" },
+    children: (
+      <Editor
+        active={tab.tabKey === activeKey}
+        environmentList={environmentList}
+        protoInfo={new ProtoInfo(tab.service, tab.methodName)}
+        key={tab.tabKey}
+        initialRequest={tab.initialRequest}
+        onEnvironmentListChange={onEnvironmentChange}
+        onRequestChange={(editorRequest: EditorRequest) => {
+          onEditorRequestChange && onEditorRequestChange({
+            id: tab.tabKey,
+            ...editorRequest
+          })
+        }}
+      />
+    )
+  }));
+
   return (
     <Tabs
       className={"draggable-tabs"}
@@ -64,6 +99,7 @@ export function TabList({ tabs, activeKey, onChange, onDelete, onDragEnd, onEdit
       activeKey={tabActiveKey || "0"}
       hideAdd
       type="editable-card"
+      items={tabItems}
       renderTabBar={(props, DefaultTabBar: any) => {
         return (
             <DraggableTabs
@@ -91,44 +127,7 @@ export function TabList({ tabs, activeKey, onChange, onDelete, onDragEnd, onEdit
             </DraggableTabs>
         )
       }}
-    >
-      {tabs.length === 0 ? (
-        <Tabs.TabPane
-          tab={"New Tab"}
-          key={"0"}
-          closable={false}
-          style={{ height: "100%" }}
-        >
-          <Editor
-            active={true}
-            environmentList={environmentList}
-            onEnvironmentListChange={onEnvironmentChange}
-          />
-        </Tabs.TabPane>
-      ) : tabs.map((tab) => (
-          <Tabs.TabPane
-            tab={`${tab.service.serviceName}.${tab.methodName}`}
-            key={tab.tabKey}
-            closable={true}
-            style={{ height: "100%" }}
-          >
-            <Editor
-              active={tab.tabKey === activeKey}
-              environmentList={environmentList}
-              protoInfo={new ProtoInfo(tab.service, tab.methodName)}
-              key={tab.tabKey}
-              initialRequest={tab.initialRequest}
-              onEnvironmentListChange={onEnvironmentChange}
-              onRequestChange={(editorRequest: EditorRequest) => {
-                onEditorRequestChange && onEditorRequestChange({
-                  id: tab.tabKey,
-                  ...editorRequest
-                })
-              }}
-            />
-          </Tabs.TabPane>
-      ))}
-    </Tabs>
+    />
   );
 }
 
