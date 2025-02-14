@@ -2,6 +2,10 @@ import * as React from 'react';
 import AceEditor, { ICommand } from 'react-ace';
 import * as Mousetrap from 'mousetrap'
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
+import 'ace-builds/src-min-noconflict/ace';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-textmate';
+import 'ace-builds/src-noconflict/ext-language_tools';
 import { Tabs } from 'antd';
 import { Viewer } from './Viewer';
 
@@ -43,10 +47,6 @@ export function Request({onChangeData, commands, data, streamData, active}: Requ
         style={{width: "100%"}}
       >
         <Tabs.TabPane tab="Editor" key={editorTabKey}>
-          <pre style={{ background: "#fff", padding: "10px", height: "calc(100vh - 185px)", overflow: "auto" }}>
-            {data}
-          </pre>
-          {/*
           <AceEditor
             ref={aceEditor}
             style={{ background: "#fff" }}
@@ -66,7 +66,6 @@ export function Request({onChangeData, commands, data, streamData, active}: Requ
             setOptions={editorOptions}
             tabSize={2}
           />
-          */}
         </Tabs.TabPane>
 
         {streamData.map((data, key) => (

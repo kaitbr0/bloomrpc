@@ -217,8 +217,9 @@
     "yarn": ">=0.21.3"
   },
   "dependencies": {
+    "ace-builds": "^1.38.0",
     "antd": "^5.24.0",
-    "electron-store": "^8.1.0",
+    "electron-store": "^10.0.1",
     "monaco-editor": "^0.52.2"
   }
 }

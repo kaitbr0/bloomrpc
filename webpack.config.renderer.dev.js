@@ -259,7 +259,10 @@ module.exports = merge.smart(baseConfig, {
       path.join(__dirname, 'resources')
     ],
     alias: {
-      resources: path.resolve(__dirname, 'resources')
+      resources: path.resolve(__dirname, 'resources'),
+    },
+    fallback: {
+      'worker_threads': false
     }
   }
 });

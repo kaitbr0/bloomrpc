@@ -46,28 +46,34 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
           > {visibile ? <DownOutlined /> : <UpOutlined />} METADATA </a>
         </div>
 
-        <div>
-          {/* <AceEditor
+        <div style={styles.metadataContainer}>
+          <pre style={{ background: "#fff", padding: "10px", height: "100%", overflow: "auto" }}>
+            {value}
+          </pre>
+          {/*
+          <AceEditor
+            style={{ background: "#fff" }}
             width={"100%"}
-            style={{ background: "#f5f5f5" }}
-            height={`${height + 20}px`}
+            height={"100%"}
             mode="json"
-            focus={visibile}
             theme="textmate"
-            fontSize={13}
             name="metadata"
-            onChange={(value) => {
-              storeMetadata(value);
-              onMetadataChange(value);
-            }}
+            fontSize={13}
+            onChange={onMetadataChange}
             showPrintMargin={false}
             showGutter
             highlightActiveLine={false}
             value={value}
             setOptions={{
-              useWorker: true
+              useWorker: false,
+              showLineNumbers: false,
+              highlightGutterLine: false,
+              fixedWidthGutter: true,
+              tabSize: 1,
+              displayIndentGuides: false
             }}
-          /> */}
+          />
+          */}
         </div>
       </div>
     </Resizable>
@@ -91,5 +97,10 @@ const styles = {
   optionLink: {
     color: "#fff",
     textDecoration: "none",
+  },
+  metadataContainer: {
+    padding: "10px",
+    height: "100%",
+    overflow: "auto"
   },
 };

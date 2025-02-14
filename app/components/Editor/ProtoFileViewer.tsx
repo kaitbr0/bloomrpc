@@ -4,6 +4,7 @@ import { ProtoInfo, ExtendedProto } from '../../behaviour';
 
 // Import ace editor and required extensions
 import AceEditor from 'react-ace';
+import 'ace-builds/src-min-noconflict/ace';
 import 'ace-builds/src-noconflict/mode-protobuf';
 import 'ace-builds/src-noconflict/theme-textmate';
 
@@ -47,6 +48,10 @@ export function ProtoFileViewer({ protoInfo, visible, onClose }: ProtoFileViewer
       onClose={onClose}
       open={visible}
     >
+      {/* <pre style={{ marginTop: "10px", background: "#fff", padding: "10px", height: "calc(100vh - 115px)", overflow: "auto" }}>
+        {protoText}
+      </pre> */}
+      {
       <AceEditor
         style={{ marginTop: "10px", background: "#fff" }}
         width={"100%"}
@@ -67,6 +72,7 @@ export function ProtoFileViewer({ protoInfo, visible, onClose }: ProtoFileViewer
         }}
         setOptions={editorOptions}
       />
+      }
     </Drawer>
   );
 }
