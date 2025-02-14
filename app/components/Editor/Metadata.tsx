@@ -1,7 +1,11 @@
 import * as React from 'react';
 import AceEditor from 'react-ace';
+import 'ace-builds/src-min-noconflict/ace';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-textmate';
+import 'ace-builds/src-noconflict/ext-language_tools';
 import { Resizable } from 're-resizable';
-import { storeMetadata } from "../../storage";
+// import { storeMetadata } from "../../storage";
 import { useState } from "react";
 import { UpOutlined, DownOutlined } from '@ant-design/icons';
 
@@ -47,10 +51,7 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
         </div>
 
         <div style={styles.metadataContainer}>
-          <pre style={{ background: "#fff", padding: "10px", height: "100%", overflow: "auto" }}>
-            {value}
-          </pre>
-          {/*
+          {
           <AceEditor
             style={{ background: "#fff" }}
             width={"100%"}
@@ -73,7 +74,7 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
               displayIndentGuides: false
             }}
           />
-          */}
+          }
         </div>
       </div>
     </Resizable>

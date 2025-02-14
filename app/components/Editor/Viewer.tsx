@@ -1,8 +1,12 @@
 import * as React from 'react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-// import AceEditor from 'react-ace';
+import AceEditor from 'react-ace';
 import * as Mousetrap from 'mousetrap';
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
+import 'ace-builds/src-min-noconflict/ace';
+import 'ace-builds/src-noconflict/mode-json';
+import 'ace-builds/src-noconflict/theme-textmate';
+import 'ace-builds/src-noconflict/ext-language_tools';
 import { Input } from 'antd';
 
 interface ResponseProps {
@@ -56,11 +60,6 @@ export function Viewer({ output, responseTime, emptyContent }: ResponseProps) {
       )}
 
       {output && (
-        // Temporarily disable AceEditor to debug worker issues
-        <pre style={{ background: "#fff", padding: "10px", height: "calc(100vh - 188px)", overflow: "auto" }}>
-          {output}
-        </pre>
-        /*
         <AceEditor
           ref={editorRef}
           className={"response-edit"}
@@ -83,7 +82,7 @@ export function Viewer({ output, responseTime, emptyContent }: ResponseProps) {
           }}
           commands={[{
             name: 'find',
-            bindKey: { win: 'Ctrl-f', mac: 'Command-f' }, //key combination used for the command.
+            bindKey: { win: 'Ctrl-f', mac: 'Command-f' },
             exec: () => {
               setShowFind(!showFind);
               inputSearch.current.focus();
@@ -98,7 +97,6 @@ export function Viewer({ output, responseTime, emptyContent }: ResponseProps) {
             displayIndentGuides: false
           }}
         />
-        */
       )}
     </div>
   )
