@@ -1,13 +1,6 @@
 // @ts-ignore
 import * as lodashGet from 'lodash.get';
-import { ProtoService, Proto } from './protobuf';
-
-// Extend Proto type with our needed properties
-export interface ExtendedProto extends Proto {
-  filename: string | null;
-  protoText: string | null;
-  ast: any | null;
-}
+import { ProtoService } from './protobuf';
 
 export class ProtoInfo {
   service: ProtoService;
@@ -19,11 +12,11 @@ export class ProtoInfo {
   }
 
   client(): any {
-    return lodashGet((this.service.proto as ExtendedProto).ast, this.service.serviceName);
+    return lodashGet(this.service.proto.ast, this.service.serviceName);
   }
 
   serviceDef() {
-    return this.service.proto.lookupService(this.service.serviceName);
+    return this.service.proto.root.lookupService(this.service.serviceName);
   }
 
   methodDef() {

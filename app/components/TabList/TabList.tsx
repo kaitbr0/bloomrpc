@@ -89,7 +89,7 @@ export function TabList({ tabs, activeKey, onChange, onDelete, onDragEnd, onEdit
     <Tabs
       className={"draggable-tabs"}
       onEdit={(targetKey, action) => {
-        if (action === "remove") {
+        if (action === "remove" && typeof targetKey === 'string') {
           onDelete && onDelete(targetKey);
         }
       }}

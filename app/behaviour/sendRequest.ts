@@ -56,6 +56,7 @@ export class GRPCRequest extends EventEmitter {
 
   send(): GRPCRequest {
     const serviceClient: any = this.protoInfo.client();
+    console.log('serviceClient!!!!!', serviceClient);
     const client: grpc.Client = this.getClient(serviceClient);
     let inputs = {};
     let metadata: {[key: string]: any} = {};
