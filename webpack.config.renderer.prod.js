@@ -27,6 +27,11 @@ module.exports = merge.smart(baseConfig, {
     'about': './app/about/about-window-renderer'
   },
   externals: ['grpc'],
+  node: {
+    __dirname: false,
+    __filename: false,
+    global: true
+  },
 
   output: {
     path: path.join(__dirname, 'app/dist'),
@@ -215,7 +220,14 @@ module.exports = merge.smart(baseConfig, {
       openAnalyzer: process.env.OPEN_ANALYZER === 'true'
     }),
     new webpack.DefinePlugin({
-      __static: `process.resourcesPath + "/static"`
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'production'),
+      'process.type': JSON.stringify(process.type),
+      'process.resourcesPath': JSON.stringify(process.resourcesPath),
+      '__static': `process.resourcesPath + "/static"`,
+      'process': {
+        platform: JSON.stringify(process.platform),
+        env: JSON.stringify(process.env)
+      }
     }),
   ]
 });

@@ -26,7 +26,7 @@ import { Resizable } from 're-resizable';
 import { AddressBar } from "./AddressBar";
 import { deleteEnvironment, getEnvironments, saveEnvironment } from "../../storage/environments";
 import ace from 'ace-builds';
-ace.config.setModuleUrl('ace/mode/json_worker', '');
+ace.config.setModuleUrl('ace/mode/json_worker', require('file-loader!ace-builds/src-noconflict/worker-json.js'));
 ace.config.setModuleUrl('ace/mode/protobuf_worker', '');
 
 export interface EditorAction {
@@ -160,6 +160,7 @@ const reducer = (state: EditorState, action: EditorAction) => {
 };
 
 export function Editor({ protoInfo, initialRequest, onRequestChange, onEnvironmentListChange, environmentList, active }: EditorProps) {
+  console.log('Editor rendering with:', { protoInfo, initialRequest });
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
     url: (initialRequest && initialRequest.url) || getUrl() || INITIAL_STATE.url,
@@ -172,12 +173,74 @@ export function Editor({ protoInfo, initialRequest, onRequestChange, onEnvironme
   useEffect(() => {
     if (protoInfo && !initialRequest) {
       try {
-        const { plain } = protoInfo.service.methodsMocks[protoInfo.methodName]();
-        dispatch(setData(JSON.stringify(plain, null, 2)));
+        // Get the method definition first
+        const methodDef = protoInfo.methodDef();
+        console.log('Method definition:', {
+          name: methodDef.name,
+          requestType: methodDef.requestType,
+          responseType: methodDef.responseType
+        });
+
+        // Look up the request type using the correct type name
+        const requestType = protoInfo.service.proto.lookupType(methodDef.requestType);
+        console.log('Found request type:', {
+          name: requestType.name,
+          fields: Object.entries(requestType.fields).map(([name, field]) => ({
+            name,
+            type: field.type,
+            isMessage: field.resolvedType?.name
+          }))
+        });
+
+        // Generate mock data based on field types
+        function generateMockData(type: any): Record<string, any> {
+          const mockData: Record<string, any> = {};
+          
+          Object.entries(type.fields).forEach(([fieldName, field]: [string, any]) => {
+            // Handle nested messages
+            if (field.resolvedType) {
+              mockData[fieldName] = generateMockData(field.resolvedType);
+              return;
+            }
+
+            // Handle basic types
+            switch (field.type) {
+              case 'string':
+                mockData[fieldName] = `Sample ${fieldName}`;
+                break;
+              case 'number':
+              case 'int32':
+              case 'int64':
+              case 'uint32':
+              case 'uint64':
+              case 'sint32':
+              case 'sint64':
+              case 'fixed32':
+              case 'fixed64':
+              case 'double':
+              case 'float':
+                mockData[fieldName] = 0;
+                break;
+              case 'bool':
+                mockData[fieldName] = false;
+                break;
+              case 'bytes':
+                mockData[fieldName] = "";
+                break;
+              default:
+                mockData[fieldName] = null;
+            }
+          });
+
+          return mockData;
+        }
+
+        const requestStructure = generateMockData(requestType);
+        dispatch(setData(JSON.stringify(requestStructure, null, 2)));
       } catch (e) {
-        console.error(e);
+        console.error('Error creating request structure:', e);
         dispatch(setData(JSON.stringify({
-          "error": "Error parsing the request message, please report the problem sharing the offending protofile"
+          "error": `Could not determine request structure: ${e.message}`
         }, null, 2)));
       }
     }
@@ -188,6 +251,13 @@ export function Editor({ protoInfo, initialRequest, onRequestChange, onEnvironme
       dispatch(setTSLCertificate(initialRequest.tlsCertificate));
     }
   }, []);
+
+  console.log('Editor rendering ProtoFileViewer with:', {
+    protoInfo: protoInfo ? {
+      fileName: protoInfo.service.proto.filename,
+      serviceName: protoInfo.service.serviceName
+    } : null
+  });
 
   return (
     <div style={styles.tabContainer}>

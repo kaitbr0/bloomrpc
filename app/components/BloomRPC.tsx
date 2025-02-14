@@ -35,16 +35,16 @@ export function BloomRPC() {
   console.log('BloomRPC component starting render');
 
   const [protos, setProtosState] = useState<ProtoFile[]>([]);
-  console.log('protos state:', protos);
+  console.log('protos initialized:', protos);
 
   const [editorTabs, setEditorTabs] = useState<EditorTabs>({
     activeKey: "0",
     tabs: [],
   });
-  console.log('editorTabs state:', editorTabs);
+  console.log('editorTabs initialized:', editorTabs);
 
   const [environments, setEnvironments] = useState<EditorEnvironment[]>(getEnvironments());
-  console.log('environments state:', environments);
+  console.log('environments initialized:', environments);
 
   function setTabs(props: EditorTabs) {
     setEditorTabs(props);
@@ -58,6 +58,7 @@ export function BloomRPC() {
 
   // Preload editor with stored data.
   useEffect(() => {
+    console.log('BloomRPC useEffect running');
     hydrateEditor(setProtos, setTabs);
   }, []);
 
@@ -150,28 +151,39 @@ export function BloomRPC() {
  * @param setEditorTabs
  */
 async function hydrateEditor(setProtos: React.Dispatch<ProtoFile[]>, setEditorTabs: React.Dispatch<EditorTabs>) {
-  const hydration = [];
-  const savedProtos = getProtos();
-  const importPaths = getImportPaths();
+  try {
+    console.log('Starting hydration...');
+    const hydration = [];
+    const savedProtos = getProtos();
+    console.log('Saved protos for hydration:', savedProtos);
 
-  if (savedProtos) {
-    hydration.push(
-      loadProtos(savedProtos, importPaths, handleProtoUpload(setProtos, []))
-        .then(() => true)
-    );
+    if (savedProtos) {
+      // Don't reload protos from disk, just use the stored ones
+      setProtos(savedProtos);
+      console.log('Set protos from storage:', savedProtos);
 
-    const savedEditorTabs = getTabs();
-    if (savedEditorTabs) {
-      hydration.push(
-        loadTabs(savedEditorTabs)
-          .catch(() => setEditorTabs({activeKey: "0", tabs: []}))
-          .then(setEditorTabs)
-          .then(() => true)
-      );
+      const savedEditorTabs = getTabs();
+      console.log('Saved editor tabs:', savedEditorTabs);
+      
+      if (savedEditorTabs) {
+        hydration.push(
+          loadTabs(savedEditorTabs)
+            .catch(err => {
+              console.error('Error loading tabs:', err);
+              setEditorTabs({activeKey: "0", tabs: []});
+              return false;
+            })
+            .then(setEditorTabs)
+            .then(() => true)
+        );
+      }
     }
-  }
 
-  return Promise.all(hydration);
+    return Promise.all(hydration);
+  } catch (err) {
+    console.error('Hydration error:', err);
+    return [];
+  }
 }
 
 /**
@@ -179,25 +191,34 @@ async function hydrateEditor(setProtos: React.Dispatch<ProtoFile[]>, setEditorTa
  * @param editorTabs
  */
 async function loadTabs(editorTabs: EditorTabsStorage): Promise<EditorTabs> {
+  console.log('Loading tabs with:', editorTabs);
+  
   const storedEditTabs: EditorTabs = {
     activeKey: editorTabs.activeKey,
     tabs: [],
   };
 
   const importPaths = getImportPaths();
+  console.log('Import paths for tabs:', importPaths);
 
-  const protos = await loadProtos(editorTabs.tabs.map((tab) => {
+  const protoPaths = editorTabs.tabs.map((tab) => {
+    console.log('Processing tab:', tab);
     return tab.protoPath;
-  }), importPaths);
+  });
+  console.log('Proto paths:', protoPaths);
+
+  const protos = await loadProtos(protoPaths, importPaths);
+  console.log('Loaded protos:', protos);
 
   const previousTabs = editorTabs.tabs.map((tab) => {
+    console.log('Processing tab for services:', tab);
     const def = protos.find((protoFile) => {
       const match = Object.keys(protoFile.services).find((service) => service === tab.serviceName);
       return Boolean(match);
     });
 
-    // Old Definition Not found
     if (!def) {
+      console.log('No definition found for tab:', tab);
       return false;
     }
 
@@ -210,6 +231,7 @@ async function loadTabs(editorTabs: EditorTabsStorage): Promise<EditorTabs> {
   });
 
   storedEditTabs.tabs = previousTabs.filter((tab) => tab) as TabData[];
+  console.log('Final stored tabs:', storedEditTabs);
 
   return storedEditTabs;
 }
@@ -221,7 +243,13 @@ async function loadTabs(editorTabs: EditorTabsStorage): Promise<EditorTabs> {
  */
 function handleProtoUpload(setProtos: React.Dispatch<ProtoFile[]>, protos: ProtoFile[]) {
   return function (newProtos: ProtoFile[], err: Error | void) {
-    console.log('Proto upload callback:', { newProtos, err });
+    console.log('Proto upload callback:', { 
+      newProtos: newProtos.map(p => ({
+        fileName: p.fileName,
+        serviceCount: Object.keys(p.services || {}).length,
+        services: Object.keys(p.services || {})
+      }))
+    });
     if (err) {
       console.error('Proto upload error:', err);
       notification.error({
@@ -243,7 +271,10 @@ function handleProtoUpload(setProtos: React.Dispatch<ProtoFile[]>, protos: Proto
     });
 
     const appProtos = [...protoMinusExisting, ...newProtos];
+    console.log('Setting protos state:', appProtos);
     setProtos(appProtos);
+    console.log('Storing protos:', appProtos);
+    storeProtos(appProtos);
 
     return appProtos;
   }
@@ -256,6 +287,7 @@ function handleProtoUpload(setProtos: React.Dispatch<ProtoFile[]>, protos: Proto
  */
 function handleMethodSelected(editorTabs: EditorTabs, setTabs: React.Dispatch<EditorTabs>) {
   return (methodName: string, protoService: ProtoService) => {
+    console.log('Handling method selection:', { methodName, protoService });
     const tab = {
       tabKey: `${protoService.serviceName}${methodName}`,
       methodName,

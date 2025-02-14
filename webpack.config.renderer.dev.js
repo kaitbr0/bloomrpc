@@ -14,6 +14,7 @@ const { spawn } = require('child_process');
 const baseConfig = require('./webpack.config.base');
 const CheckNodeEnv = require('./internals/scripts/CheckNodeEnv');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 CheckNodeEnv('development');
 
@@ -34,7 +35,8 @@ module.exports = merge.smart(baseConfig, {
   output: {
     path: path.join(__dirname, 'app', 'dist'),
     publicPath: '/',
-    filename: '[name].js'
+    filename: '[name].js',
+    globalObject: 'self'
   },
 
   module: {
@@ -160,8 +162,8 @@ module.exports = merge.smart(baseConfig, {
       },
       // Common Image Formats
       {
-        test: /\.(?:ico|gif|png|jpg|jpeg|webp)$/,
-        use: 'url-loader'
+        test: /\.(png|jpg|gif|jpeg|webp|ico)$/,
+        type: 'asset/resource'
       },
       {
         test: /\.css$/,
@@ -179,6 +181,15 @@ module.exports = merge.smart(baseConfig, {
           loader: 'ts-loader',
           options: {
             transpileOnly: true
+          }
+        }
+      },
+      {
+        test: /\.worker\.js$/,
+        use: { 
+          loader: 'worker-loader',
+          options: { 
+            filename: '[name].js'
           }
         }
       }
@@ -221,6 +232,18 @@ module.exports = merge.smart(baseConfig, {
       minify: false,
       chunks: ['renderer']
     }),
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: 'node_modules/monaco-editor/esm/vs/editor/editor.worker.js',
+          to: 'dist'
+        },
+        {
+          from: 'node_modules/monaco-editor/esm/vs/language/json/json.worker.js',
+          to: 'dist/worker-json.js'
+        }
+      ]
+    })
   ],
 
   externals: {
@@ -251,6 +274,13 @@ module.exports = merge.smart(baseConfig, {
 
   resolve: {
     extensions: ['.js', '.jsx', '.json', '.ts', '.tsx'],
-    modules: [path.join(__dirname, 'app'), 'node_modules']
+    modules: [
+      path.join(__dirname, 'app'),
+      'node_modules',
+      path.join(__dirname, 'resources')
+    ],
+    alias: {
+      resources: path.resolve(__dirname, 'resources')
+    }
   }
 });

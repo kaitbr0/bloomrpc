@@ -5,15 +5,17 @@
     <title>BloomRPC</title>
     <script>
       // Define process.env for renderer
-      window.process = {
-        env: {
-          NODE_ENV: process.env.NODE_ENV,
-          START_HOT: process.env.START_HOT,
-        }
-      };
+      if (window.process === undefined) {
+        window.process = {
+          env: {
+            NODE_ENV: 'production',
+            START_HOT: false,
+          }
+        };
+      }
 
       (() => {
-        if (process?.env?.NODE_ENV !== 'development') {
+        if (window.process?.env?.NODE_ENV !== 'development') {
           const link = document.createElement('link');
           link.rel = 'stylesheet';
           link.href = './dist/style.css';
@@ -24,7 +26,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <!-- Remove or update this script tag - webpack will inject the correct one -->
-    <!-- <script src="./dist/app.renderer.prod.js"></script> -->
+    <script src="./dist/app.renderer.prod.js"></script>
   </body>
 </html>

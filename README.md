@@ -30,3 +30,17 @@ Check out the list of current gRPC tools at [awesome-grpc](https://github.com/gr
 So long, and thanks for all the fish
 
 <img src="./resources/editor-preview.gif" />
+
+<!-- ## RUN ME: 
+cd bloomrpc
+yarn install && ./node_modules/.bin/electron-rebuild
+npm run package -->
+
+actually run the app: 
+Terminal 1: 
+npm run dev:renderer      
+
+Terminal 2: 
+npm run dev:main-compile
+npm run dev:main     
+

@@ -1,9 +1,15 @@
 import * as React from 'react';
-import { Button, Icon, Tooltip, Switch, Modal, Menu, Dropdown } from 'antd';
+import { Button, Tooltip, Switch, Modal, Menu, Dropdown } from 'antd';
+import { 
+  LockOutlined, 
+  UnlockOutlined,
+  CaretDownOutlined,
+  FilePptOutlined 
+} from '@ant-design/icons';
 import { setInteractive, setProtoVisibility, setGrpcWeb } from './actions';
 import { EditorAction } from './Editor';
-import {useState} from "react";
-import {TLSManager} from "./TLSManager";
+import { useState } from "react";
+import { TLSManager } from "./TLSManager";
 import { ProtoInfo, Certificate } from '../../behaviour';
 
 interface OptionsProps {
@@ -30,13 +36,11 @@ export function Options({ protoInfo, dispatch, grpcWebChecked, interactiveChecke
             alignItems: "center",
           }}>
             <Tooltip placement="bottom" title={tlsSelected ? "Secure Connection" : "Unsecure Connection"}>
-              <Icon
-                  type={tlsSelected ? "lock" : "unlock"}
-                  style={{
-                    fontSize: 18,
-                    color: tlsSelected ? "#28d440" : "#bdbcbc",
-                  }}
-              />
+              {tlsSelected ? (
+                <LockOutlined style={{ fontSize: 18, color: "#28d440" }} />
+              ) : (
+                <UnlockOutlined style={{ fontSize: 18, color: "#bdbcbc" }} />
+              )}
             </Tooltip>
             <span
               onClick={() => setTlsModalVisible(true)}
@@ -49,7 +53,7 @@ export function Options({ protoInfo, dispatch, grpcWebChecked, interactiveChecke
           <Modal
               title={(
                   <div>
-                    <Icon type="lock" />
+                    <LockOutlined />
                     <span style={{marginLeft: 10}}> TLS / SSL Manager </span>
                   </div>
               )}
@@ -80,7 +84,7 @@ export function Options({ protoInfo, dispatch, grpcWebChecked, interactiveChecke
             </Menu>
         )} trigger={['click']}>
           <div style={{ marginRight: 5, marginTop: 2, cursor: 'pointer', color: "#b5b5b5"}} >
-            <Icon type="caret-down" />
+            <CaretDownOutlined />
           </div>
         </Dropdown>
         <div style={{paddingRight: 10}}>
@@ -106,7 +110,7 @@ export function Options({ protoInfo, dispatch, grpcWebChecked, interactiveChecke
         </div>
 
         <Button
-          icon="file-ppt"
+          icon={<FilePptOutlined />}
           type="dashed"
           onClick={() => dispatch(setProtoVisibility(true))}
         >

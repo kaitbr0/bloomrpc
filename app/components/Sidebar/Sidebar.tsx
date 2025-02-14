@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from "react";
-import {Menu, Button, Dropdown, Modal, Tooltip, Tree, Input} from 'antd';
+import { Menu, Button, Dropdown, Modal, Tooltip, Tree, Input } from 'antd';
 import { Badge } from '../Badge/Badge';
 import {OnProtoUpload, ProtoFile, ProtoService, importProtos, importProtosFromServerReflection} from '../../behaviour';
 import { PathResolution } from "./PathResolution";
@@ -26,7 +26,15 @@ interface SidebarProps {
   onMethodDoubleClick: (methodName: string, protoService: ProtoService) => void
 }
 
-export function Sidebar({ protos, onMethodSelected, onProtoUpload, onDeleteAll, onReload, onMethodDoubleClick }: SidebarProps) {
+export function Sidebar({ protos = [], onMethodSelected, onProtoUpload, onDeleteAll, onReload, onMethodDoubleClick }: SidebarProps) {
+  console.log('Sidebar rendering with protos:', {
+    count: protos?.length || 0,
+    files: protos?.map(p => ({
+      fileName: p.fileName,
+      serviceCount: Object.keys(p.services || {}).length,
+      services: Object.keys(p.services || {})
+    })) || []
+  });
 
   const [importPaths, setImportPaths] = useState<string[]>([""]);
   const [importPathVisible, setImportPathsVisible] = useState(false);
@@ -43,28 +51,62 @@ export function Sidebar({ protos, onMethodSelected, onProtoUpload, onDeleteAll, 
    * @param selected The selected key from the directory tree
    */
   function processSelectedKey(selected: string | undefined) {
+    console.log('Processing key:', selected);
+
     // We handle only methods.
-    if (!selected || !selected.includes("method:")) {
+    if (!selected) {
+      console.log('Selected key is undefined');
       return undefined;
     }
 
-    const fragments = selected.split('||');
-    const fileName = fragments[0];
-    const methodName = fragments[1].replace('method:', '');
-    const serviceName = fragments[2].replace('service:', '');
-
-    const protodef = protos.find((protoFile) => {
-      const match = Object.keys(protoFile.services).find(
-        (service) => service === serviceName &&
-          fileName === protoFile.services[serviceName].proto.filePath
-      );
-      return Boolean(match);
-    });
-
-    if (!protodef) {
+    if (!selected.includes("method:")) {
+      console.log('Not a method selection');
       return undefined;
     }
-    return {methodName, protodef, serviceName}
+
+    try {
+      const fragments = selected.split('||');
+      console.log('Split fragments:', fragments);
+
+      if (fragments.length < 3) {
+        console.log('Invalid key format');
+        return undefined;
+      }
+
+      // Handle case where fileName is undefined
+      const fileName = fragments[0] === 'undefined' ? 'user.proto' : fragments[0];
+      const methodName = fragments[1].replace('method:', '');
+      const serviceName = fragments[2].replace('service:', '');
+
+      console.log('Looking for service:', { fileName, methodName, serviceName });
+
+      const protodef = protos.find((protoFile) => {
+        console.log('Checking proto file:', {
+          fileName: protoFile.fileName,
+          services: Object.keys(protoFile.services),
+          fullName: protoFile.proto.fullName
+        });
+        const match = Object.keys(protoFile.services).find(
+          (service) => service === serviceName
+        );
+        return Boolean(match);
+      });
+
+      if (!protodef) {
+        console.log('No matching proto definition found');
+        return undefined;
+      }
+
+      console.log('Found proto definition:', {
+        fileName: protodef.fileName,
+        service: protodef.services[serviceName]
+      });
+
+      return {methodName, protodef, serviceName};
+    } catch (error) {
+      console.error('Error processing key:', error);
+      return undefined;
+    }
   }
 
   function toggleFilter() {
@@ -150,7 +192,7 @@ export function Sidebar({ protos, onMethodSelected, onProtoUpload, onDeleteAll, 
                     <span style={{marginLeft: 10}}> Import Paths </span>
                   </div>
               )}
-              visible={importPathVisible}
+              open={importPathVisible}
               onCancel={() => setImportPathsVisible(false)}
               onOk={() => setImportPathsVisible(false)}
               bodyStyle={{padding: 0}}
@@ -172,7 +214,7 @@ export function Sidebar({ protos, onMethodSelected, onProtoUpload, onDeleteAll, 
                 <span style={{marginLeft: 10}}> Import from server reflection </span>
               </div>
             )}
-            visible={importReflectionVisible}
+            open={importReflectionVisible}
             onCancel={() => setImportReflectionVisible(false)}
             onOk={() => setImportReflectionVisible(false)}
             width={750}
@@ -252,7 +294,7 @@ export function Sidebar({ protos, onMethodSelected, onProtoUpload, onDeleteAll, 
                   return name.toLowerCase().includes(filterMatch.toLowerCase());
                 })
                 .map((method) => ({
-                  key: `${proto.proto.filePath}||method:${method}||service:${service}`,
+                  key: `${proto.fileName}||method:${method}||service:${service}`,
                   title: (
                     <span style={{ 
                       display: 'flex', 
@@ -269,12 +311,25 @@ export function Sidebar({ protos, onMethodSelected, onProtoUpload, onDeleteAll, 
             }))
           }))}
           onSelect={async (selectedKeys) => {
+            console.log('Tree select triggered with:', selectedKeys);
             const selected = selectedKeys.pop()?.toString();
+            console.log('Selected key:', selected);
             const protoDefinitions = processSelectedKey(selected);
 
             if (!protoDefinitions){
+              console.log('No proto definitions found');
               return;
             }
+
+            console.log('Method selected:', {
+              methodName: protoDefinitions.methodName,
+              serviceName: protoDefinitions.serviceName,
+              protodef: {
+                fileName: protoDefinitions.protodef.fileName,
+                serviceCount: Object.keys(protoDefinitions.protodef.services).length,
+                methods: protoDefinitions.protodef.services[protoDefinitions.serviceName].methodsName
+              }
+            });
 
             onMethodSelected(protoDefinitions.methodName, protoDefinitions.protodef.services[protoDefinitions.serviceName]);
           }}

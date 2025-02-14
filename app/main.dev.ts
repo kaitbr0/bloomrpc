@@ -4,6 +4,9 @@ import * as path from 'path';
 console.log('Starting main process...');
 console.log('Current directory:', __dirname);
 
+// Add before creating the window
+console.log('Creating window...');
+
 function registerIpcHandlers() {
   console.log('Registering IPC handlers...');
   
@@ -34,52 +37,58 @@ registerIpcHandlers();
 
 let mainWindow: BrowserWindow | null = null;
 
-app.on('ready', async () => {
-  console.log('App ready event fired');
-  
-  // Create preload script content directly
-  const preloadScript = `
-    const { ipcRenderer } = require('electron');
-    const Store = require('electron-store');
+app.whenReady().then(async () => {
+  try {
+    console.log('App ready event fired');
     
-    process.listenerCount = () => 0;
+    // Simplest possible preload script
+    const preloadScript = `
+      const { contextBridge } = require('electron');
+      const Store = require('electron-store');
+      
+      // Expose store API through contextBridge
+      contextBridge.exposeInMainWorld('electronAPI', {
+        store: new Store(),
+        getItem: (key) => new Store().get(key),
+        setItem: (key, value) => new Store().set(key, value),
+        deleteItem: (key) => new Store().delete(key)
+      });
+    `;
     
-    const store = new Store({ name: 'editor-store' });
-    window.electronStore = store;
-  `;
-  
-  // Write it to a temp file
-  const fs = require('fs');
-  const preloadPath = path.join(__dirname, 'preload-temp.js');
-  fs.writeFileSync(preloadPath, preloadScript);
-  
-  console.log('Preload path:', preloadPath);
-  
-  mainWindow = new BrowserWindow({
-    show: false,
-    width: 1024,
-    height: 728,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
-      webSecurity: false,
-      devTools: true,
-      // preload: preloadPath
+    // Write preload script to temp file
+    const fs = require('fs');
+    const preloadPath = path.join(__dirname, 'preload.js');
+    fs.writeFileSync(preloadPath, preloadScript);
+    
+    mainWindow = new BrowserWindow({
+      show: false,
+      width: 1024,
+      height: 728,
+      webPreferences: {
+        nodeIntegration: true,
+        contextIsolation: false,
+        webSecurity: false,
+        devTools: true,
+        preload: preloadPath
+      }
+    });
+
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Loading development URL');
+      await mainWindow.loadURL('http://localhost:1213/app.html');
+    } else {
+      mainWindow.loadURL(`file://${__dirname}/app.html`);
     }
-  });
 
-  // Open DevTools
-  mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
+    mainWindow.show();
 
-  mainWindow.on('ready-to-show', () => {
-    mainWindow?.show();
-    mainWindow?.focus();
-  });
-
-  if (process.env.NODE_ENV === 'development') {
-    console.log('Loading development URL');
-    await mainWindow.loadURL('http://localhost:1213/app.html');
-  } else {
-    mainWindow.loadURL(`file://${__dirname}/app.html`);
+  } catch (error) {
+    console.error('Failed to initialize app:', error);
+    app.quit();
   }
+});
+
+process.on('unhandledRejection', (error) => {
+  console.error('Unhandled rejection:', error);
 }); 

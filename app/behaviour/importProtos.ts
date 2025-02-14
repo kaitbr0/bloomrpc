@@ -1,12 +1,12 @@
 import * as protobuf from 'protobufjs';
 import * as path from 'path';
 import { ProtoFile, ProtoService } from './protobuf';
-import { Service } from 'protobufjs';
-import {Client} from 'grpc-reflection-js';
-import {credentials} from '@grpc/grpc-js';
+import { Client } from 'grpc-reflection-js';
+import { credentials } from '@grpc/grpc-js';
 import isURL from 'validator/lib/isURL';
 import { ipcRenderer } from 'electron';
 import * as fs from 'fs';
+import { Service, Namespace } from 'protobufjs';
 
 type Proto = protobuf.Root;
 
@@ -57,6 +57,7 @@ export async function importProtosFromServerReflection(onProtoUploaded: OnProtoU
  * @param onProtoUploaded
  */
 export async function loadProtos(protoPaths: string[], importPaths?: string[], onProtoUploaded?: OnProtoUpload): Promise<ProtoFile[]> {
+  console.log('Loading proto files:', protoPaths);
   let validateOptions = {
     require_tld: false,
     require_protocol: false,
@@ -66,17 +67,21 @@ export async function loadProtos(protoPaths: string[], importPaths?: string[], o
   const protoUrls = protoPaths.filter((protoPath) => {
     return isURL(protoPath, validateOptions);
   })
+  console.log('Proto URLs:', protoUrls);
 
   const protoFiles = protoPaths.filter((protoPath) => {
     return !isURL(protoPath, validateOptions);
   })
+  console.log('Proto files:', protoFiles);
 
   const protoFileFromFiles = await loadProtosFromFile(protoFiles, importPaths, onProtoUploaded);
+  console.log('Proto files from files:', protoFileFromFiles);
 
   let protoFileFromReflection: ProtoFile[] = [];
   for (const protoUrl of protoUrls) {
     protoFileFromReflection = protoFileFromReflection.concat(await loadProtoFromReflection(protoUrl, onProtoUploaded));
   }
+  console.log('Proto files from reflection:', protoFileFromReflection);
 
   return protoFileFromFiles.concat(protoFileFromReflection);
 }
@@ -145,7 +150,11 @@ export async function loadProtosFromFile(filePaths: string[], importPaths?: stri
         alternateCommentMode: true,
         preferTrailingComment: true
       });
-      console.log('Parsed proto:', parsed);
+      console.log('Parsed proto result:', {
+        root: parsed.root,
+        hasNested: !!parsed.root.nested,
+        nestedKeys: parsed.root.nested ? Object.keys(parsed.root.nested) : []
+      });
       return parsed;
     }));
 
@@ -180,31 +189,34 @@ export async function loadProtosFromFile(filePaths: string[], importPaths?: stri
  */
 function parseServices(proto: Proto) {
   const services: {[key: string]: ProtoService} = {};
-  console.log('Parsing services from proto:', proto);
+  console.log('Parsing services from proto:', {
+    nested: proto.nested ? Object.keys(proto.nested) : [],
+    nestedContent: proto.nested
+  });
 
   // Handle nested services
   if (proto.nested) {
     Object.entries(proto.nested).forEach(([name, service]) => {
-      if (service && 'methods' in service) {
+      if (service instanceof Service) {
         console.log('Found service:', name);
         services[name] = {
           serviceName: name,
           proto,
           methodsMocks: {},
-          methodsName: Object.keys(service.methods || {}),
+          methodsName: Object.keys(service.methods || {})
         };
       }
 
-      // Check nested packages
-      if (service && typeof service === 'object' && 'nested' in service) {
+      if (service instanceof Namespace) {
         Object.entries(service.nested || {}).forEach(([nestedName, nestedService]) => {
-          if (nestedService && 'methods' in nestedService) {
-            console.log('Found nested service:', `${name}.${nestedName}`);
-            services[`${name}.${nestedName}`] = {
-              serviceName: `${name}.${nestedName}`,
+          if (nestedService instanceof Service) {
+            const fullServiceName = `${name}.${nestedName}`;
+            console.log('Found nested service:', fullServiceName);
+            services[fullServiceName] = {
+              serviceName: fullServiceName,
               proto,
               methodsMocks: {},
-              methodsName: Object.keys(nestedService.methods || {}),
+              methodsName: Object.keys(nestedService.methods || {})
             };
           }
         });
@@ -212,7 +224,6 @@ function parseServices(proto: Proto) {
     });
   }
 
-  console.log('Parsed services:', services);
   return services;
 }
 

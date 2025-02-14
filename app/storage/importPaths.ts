@@ -1,12 +1,17 @@
-// Temporarily disable electron-store
+import { editorStore } from './editor';
+
+const KEYS = {
+  IMPORT_PATH: "paths"
+} as const;
+
 export function storeImportPaths(paths: string[]) {
-  console.log('Storage disabled:', paths);
+  editorStore.set(KEYS.IMPORT_PATH, paths);
 }
 
 export function getImportPaths(): string[] {
-  return [""];
+  return editorStore.get(KEYS.IMPORT_PATH) || [];
 }
 
 export function clearImportPaths() {
-  console.log('Storage clear disabled');
+  editorStore.delete(KEYS.IMPORT_PATH);
 }

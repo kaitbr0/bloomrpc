@@ -8,6 +8,8 @@ interface ResponseProps {
   response: EditorResponse
 }
 
+const PLACEHOLDER_IMAGE = 'https://placehold.co/128x128';
+
 export function Response({response, streamResponse}: ResponseProps) {
   const defaultKey = `responseTab`;
   return (
@@ -25,7 +27,10 @@ export function Response({response, streamResponse}: ResponseProps) {
                   emptyContent={(
                     <div style={{position: "relative", height: "325px"}}>
                       <div style={styles.introContainer}>
-                        <img src={require('./../../../resources/blue/128x128.png')} style={{ opacity: 0.1, pointerEvents: "none", userSelect: "none" }}/>
+                        <img 
+                          src={PLACEHOLDER_IMAGE} 
+                          style={{ opacity: 0.1, pointerEvents: "none", userSelect: "none" }}
+                        />
                         <h1 style={styles.introTitle}>Hit the play button to get a response here</h1>
                       </div>
                     </div>
