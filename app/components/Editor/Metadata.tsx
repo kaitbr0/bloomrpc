@@ -16,7 +16,7 @@ interface MetadataProps {
 }
 
 export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataProps) {
-  const [height, setHeight] = useState(38);
+  const [height, setHeight] = useState(150);
   const visibile = height > 38;
 
   return (
@@ -31,7 +31,7 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
         className="meatada-panel"
          style={{
            ...styles.optionContainer,
-           ...{bottom: `-38px`, height: `${height}px`},
+           ...{bottom: `0px`, height: `${height}px`},
          }}
     >
       <div>

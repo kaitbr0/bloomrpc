@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useEffect, useState } from 'react';
-import { Button, Icon, Input, Radio, Table } from "antd";
+import { Button, Input, Radio, Table } from "antd";
+import { PlusCircleOutlined, CloseOutlined } from '@ant-design/icons';
 import { Certificate, importCertChain, importPrivateKey, importRootCert } from "../../behaviour";
 import { getTLSList, storeTLSList } from "../../storage";
 
@@ -38,7 +39,7 @@ export function TLSManager({ selected, onSelected }: TLSManagerProps) {
                     width: "100%"
                 }}
             >
-              <Icon type="plus-circle" /> Add Root Certificate
+              <PlusCircleOutlined /> Add Root Certificate
             </Button>
         </div>
         <Table
@@ -157,8 +158,7 @@ export function TLSManager({ selected, onSelected }: TLSManagerProps) {
                   return <div />
                 }
                 return (
-                    <Icon
-                        type="close"
+                    <CloseOutlined
                         onClick={() => {
                           if (selected && selected.rootCert.filePath === certificate.rootCert.filePath) {
                             onSelected && onSelected();
