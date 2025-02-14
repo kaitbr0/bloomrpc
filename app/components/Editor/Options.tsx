@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Tooltip, Switch, Modal, Menu, Dropdown } from 'antd';
+import { Button, Tooltip, Switch, Modal, Dropdown } from 'antd';
 import { 
   LockOutlined, 
   UnlockOutlined,
@@ -26,6 +26,20 @@ interface OptionsProps {
 export function Options({ protoInfo, dispatch, grpcWebChecked, interactiveChecked, onInteractiveChange, tlsSelected, onTLSSelected, onClickExport }: OptionsProps) {
 
   const [tlsModalVisible, setTlsModalVisible] = useState(false);
+
+  const exportMenu = {
+    items: [
+      {
+        key: '0',
+        label: (
+          <a onClick={(e) => {
+            e.preventDefault();
+            onClickExport && onClickExport()
+          }}>Export response</a>
+        ),
+      },
+    ],
+  };
 
   return (
     <div style={{...styles.optionContainer, ...styles.inline}}>
@@ -57,7 +71,7 @@ export function Options({ protoInfo, dispatch, grpcWebChecked, interactiveChecke
                     <span style={{marginLeft: 10}}> TLS / SSL Manager </span>
                   </div>
               )}
-              visible={tlsModalVisible}
+              open={tlsModalVisible}
               onCancel={() => setTlsModalVisible(false)}
               onOk={() => setTlsModalVisible(false)}
               bodyStyle={{padding: 0}}
@@ -73,16 +87,10 @@ export function Options({ protoInfo, dispatch, grpcWebChecked, interactiveChecke
       </div>
 
       <div style={{ ...styles.inline }}>
-        <Dropdown overlay={(
-            <Menu>
-              <Menu.Item key="0">
-                <a onClick={(e) => {
-                  e.preventDefault();
-                  onClickExport && onClickExport()
-                }}>Export response</a>
-              </Menu.Item>
-            </Menu>
-        )} trigger={['click']}>
+        <Dropdown 
+          menu={exportMenu}
+          trigger={['click']}
+        >
           <div style={{ marginRight: 5, marginTop: 2, cursor: 'pointer', color: "#b5b5b5"}} >
             <CaretDownOutlined />
           </div>

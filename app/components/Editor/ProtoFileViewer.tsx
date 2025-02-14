@@ -30,7 +30,7 @@ export function ProtoFileViewer({ protoInfo, visible, onClose }: ProtoFileViewer
       width={"50%"}
       closable={false}
       onClose={onClose}
-      visible={visible}
+      open={visible}
     >
       <AceEditor
         style={{ marginTop: "10px", background: "#fff" }}

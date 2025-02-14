@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { useEffect, useState } from "react";
-import { Menu, Button, Dropdown, Modal, Tooltip, Tree, Input } from 'antd';
+import { Button, Dropdown, Modal, Tooltip, Tree, Input } from 'antd';
 import { Badge } from '../Badge/Badge';
 import {OnProtoUpload, ProtoFile, ProtoService, importProtos, importProtosFromServerReflection} from '../../behaviour';
 import { PathResolution } from "./PathResolution";
@@ -116,6 +116,23 @@ export function Sidebar({ protos = [], onMethodSelected, onProtoUpload, onDelete
     }
   }
 
+  const importMenu = {
+    items: [
+      {
+        key: '1',
+        icon: <FileOutlined />,
+        label: 'Import from file',
+        onClick: () => importProtos(onProtoUpload, importPaths)
+      },
+      {
+        key: '2',
+        icon: <EyeOutlined />,
+        label: 'Import from server reflection',
+        onClick: () => setImportReflectionVisible(true)
+      }
+    ]
+  };
+
   return (
     <>
       <div style={styles.sidebarTitleContainer}>
@@ -123,30 +140,11 @@ export function Sidebar({ protos = [], onMethodSelected, onProtoUpload, onDelete
           <h3 style={styles.sidebarTitle}>Protos</h3>
         </div>
 
-        <div
-          style={{display: "flex", flexDirection: "column", justifyContent: "center"}}
-        >
+        <div style={{display: "flex", flexDirection: "column", justifyContent: "center"}}>
           <Dropdown.Button
             type="primary"
-            onClick={() => {
-              importProtos(onProtoUpload, importPaths)
-            }}
-            overlay={
-              <Menu>
-                <Menu.Item key="1" onClick={() => {
-                  importProtos(onProtoUpload, importPaths)
-                }}>
-                  <FileOutlined />
-                  Import from file
-                </Menu.Item>
-                <Menu.Item key="2" onClick={() => {
-                  setImportReflectionVisible(true)
-                }}>
-                  <EyeOutlined />
-                  Import from server reflection
-                </Menu.Item>
-              </Menu>
-            }
+            onClick={() => importProtos(onProtoUpload, importPaths)}
+            menu={importMenu}
           >
             <PlusOutlined />
           </Dropdown.Button>
