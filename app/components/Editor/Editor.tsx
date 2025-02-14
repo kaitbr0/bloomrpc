@@ -19,15 +19,12 @@ import { Certificate, ProtoInfo, GRPCEventEmitter } from '../../behaviour';
 import { getMetadata, getUrl, storeUrl } from '../../storage';
 
 import 'ace-builds/src-noconflict/theme-textmate';
-import 'ace-builds/src-noconflict/mode-json';
-import 'ace-builds/src-noconflict/mode-protobuf';
+import 'ace-builds/src-noconflict/mode-json.js';
+import 'ace-builds/src-noconflict/mode-protobuf.js';
 import { exportResponseToJSONFile } from "../../behaviour/response";
 import { Resizable } from 're-resizable';
 import { AddressBar } from "./AddressBar";
 import { deleteEnvironment, getEnvironments, saveEnvironment } from "../../storage/environments";
-import ace from 'ace-builds';
-ace.config.setModuleUrl('ace/mode/json_worker', require('file-loader!ace-builds/src-noconflict/worker-json.js'));
-ace.config.setModuleUrl('ace/mode/protobuf_worker', '');
 
 export interface EditorAction {
   [key: string]: any

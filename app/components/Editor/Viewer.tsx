@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { ChangeEvent, useEffect, useRef, useState } from 'react';
-import AceEditor from 'react-ace';
+// import AceEditor from 'react-ace';
 import * as Mousetrap from 'mousetrap';
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
 import { Input } from 'antd';
@@ -56,6 +56,11 @@ export function Viewer({ output, responseTime, emptyContent }: ResponseProps) {
       )}
 
       {output && (
+        // Temporarily disable AceEditor to debug worker issues
+        <pre style={{ background: "#fff", padding: "10px", height: "calc(100vh - 188px)", overflow: "auto" }}>
+          {output}
+        </pre>
+        /*
         <AceEditor
           ref={editorRef}
           className={"response-edit"}
@@ -85,7 +90,7 @@ export function Viewer({ output, responseTime, emptyContent }: ResponseProps) {
             }
           }]}
           setOptions={{
-            useWorker: true,
+            useWorker: false,
             showLineNumbers: false,
             highlightGutterLine: false,
             fixedWidthGutter: true,
@@ -93,6 +98,7 @@ export function Viewer({ output, responseTime, emptyContent }: ResponseProps) {
             displayIndentGuides: false
           }}
         />
+        */
       )}
     </div>
   )

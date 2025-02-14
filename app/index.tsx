@@ -5,6 +5,8 @@ import { BloomRPC } from './components/BloomRPC';
 
 console.log('index.tsx starting...');
 
+// TODO: Import ace and configure workers when we implement proper syntax highlighting
+
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: any}> {
   constructor(props: {children: React.ReactNode}) {
     super(props);

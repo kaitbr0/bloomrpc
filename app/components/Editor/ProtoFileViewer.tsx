@@ -1,13 +1,28 @@
 import * as React from 'react';
-import AceEditor from 'react-ace';
 import { Drawer } from 'antd';
 import { ProtoInfo, ExtendedProto } from '../../behaviour';
+
+// Import ace editor and required extensions
+import AceEditor from 'react-ace';
+import 'ace-builds/src-noconflict/mode-protobuf';
+import 'ace-builds/src-noconflict/theme-textmate';
 
 interface ProtoFileViewerProps {
   protoInfo: ProtoInfo;
   visible: boolean;
   onClose: () => void;
 }
+
+// TODO: Add proper protobuf worker for syntax highlighting and validation 
+// once the app is more stable. For now, disable workers to avoid errors.
+const editorOptions = {
+  useWorker: false,
+  displayIndentGuides: false,
+  showLineNumbers: false,
+  highlightGutterLine: false,
+  fixedWidthGutter: true,
+  tabSize: 1,
+};
 
 export function ProtoFileViewer({ protoInfo, visible, onClose }: ProtoFileViewerProps) {
   if (!protoInfo?.service?.proto) {
@@ -42,7 +57,6 @@ export function ProtoFileViewer({ protoInfo, visible, onClose }: ProtoFileViewer
         fontSize={13}
         showPrintMargin={false}
         wrapEnabled
-
         showGutter={false}
         readOnly
         highlightActiveLine={false}
@@ -51,14 +65,7 @@ export function ProtoFileViewer({ protoInfo, visible, onClose }: ProtoFileViewer
           editor.renderer.$cursorLayer.element.style.display = "none";
           editor.gotoLine(0, 0, true);
         }}
-        setOptions={{
-          useWorker: true,
-          displayIndentGuides: false,
-          showLineNumbers: false,
-          highlightGutterLine: false,
-          fixedWidthGutter: true,
-          tabSize: 1,
-        }}
+        setOptions={editorOptions}
       />
     </Drawer>
   );

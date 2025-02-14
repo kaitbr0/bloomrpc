@@ -184,15 +184,6 @@ module.exports = merge.smart(baseConfig, {
           }
         }
       },
-      {
-        test: /\.worker\.js$/,
-        use: { 
-          loader: 'worker-loader',
-          options: { 
-            filename: '[name].js'
-          }
-        }
-      }
     ]
   },
 
@@ -231,18 +222,6 @@ module.exports = merge.smart(baseConfig, {
       inject: 'body',
       minify: false,
       chunks: ['renderer']
-    }),
-    new CopyWebpackPlugin({
-      patterns: [
-        {
-          from: 'node_modules/monaco-editor/esm/vs/editor/editor.worker.js',
-          to: 'dist'
-        },
-        {
-          from: 'node_modules/monaco-editor/esm/vs/language/json/json.worker.js',
-          to: 'dist/worker-json.js'
-        }
-      ]
     })
   ],
 

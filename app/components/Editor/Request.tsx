@@ -1,5 +1,5 @@
 import * as React from 'react';
-import AceEditor, { Command } from 'react-ace';
+import AceEditor, { ICommand } from 'react-ace';
 import * as Mousetrap from 'mousetrap'
 import 'mousetrap/plugins/global-bind/mousetrap-global-bind';
 import { Tabs } from 'antd';
@@ -9,7 +9,7 @@ interface RequestProps {
   data: string
   streamData: string[]
   onChangeData: (value: string) => void
-  commands?: Command[]
+  commands?: ICommand[]
   active?: boolean
 }
 
@@ -29,6 +29,12 @@ export function Request({onChangeData, commands, data, streamData, active}: Requ
     }
   })
 
+  // Add the same editor options to disable workers
+  const editorOptions = {
+    useWorker: false,
+    displayIndentGuides: true
+  };
+
   return (
     <>
       <Tabs
@@ -37,6 +43,10 @@ export function Request({onChangeData, commands, data, streamData, active}: Requ
         style={{width: "100%"}}
       >
         <Tabs.TabPane tab="Editor" key={editorTabKey}>
+          <pre style={{ background: "#fff", padding: "10px", height: "calc(100vh - 185px)", overflow: "auto" }}>
+            {data}
+          </pre>
+          {/*
           <AceEditor
             ref={aceEditor}
             style={{ background: "#fff" }}
@@ -53,12 +63,10 @@ export function Request({onChangeData, commands, data, streamData, active}: Requ
             showGutter
             highlightActiveLine={false}
             value={data}
-            setOptions={{
-              useWorker: true,
-              displayIndentGuides: true
-            }}
+            setOptions={editorOptions}
             tabSize={2}
           />
+          */}
         </Tabs.TabPane>
 
         {streamData.map((data, key) => (

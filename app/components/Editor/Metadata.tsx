@@ -47,7 +47,7 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
         </div>
 
         <div>
-          <AceEditor
+          {/* <AceEditor
             width={"100%"}
             style={{ background: "#f5f5f5" }}
             height={`${height + 20}px`}
@@ -67,7 +67,7 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
             setOptions={{
               useWorker: true
             }}
-          />
+          /> */}
         </div>
       </div>
     </Resizable>
