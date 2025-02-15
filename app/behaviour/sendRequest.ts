@@ -45,6 +45,10 @@ export class GRPCRequest extends EventEmitter {
 
   constructor({ url, protoInfo, metadata, inputs, interactive, tlsCertificate }: GRPCRequestInfo) {
     super();
+    console.log('GRPCRequest constructor, protoInfo:', {
+      hasAst: !!protoInfo.service.proto.ast,
+      serviceName: protoInfo.service.serviceName
+    });
     this.url = url;
     this.protoInfo = protoInfo;
     this.metadata = metadata;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Drawer } from 'antd';
-import { ProtoInfo, ExtendedProto } from '../../behaviour';
+import { ProtoInfo } from '../../behaviour';
 
 // Import ace editor and required extensions
 import AceEditor from 'react-ace';
@@ -35,8 +35,8 @@ export function ProtoFileViewer({ protoInfo, visible, onClose }: ProtoFileViewer
     return null;
   }
 
-  const proto = protoInfo.service.proto as ExtendedProto;
-  const fileName = proto.filename || 'Proto File';
+  const proto = protoInfo.service.proto;
+  const fileName = proto.fileName || 'Proto File';
   const protoText = proto.protoText || '';
 
   return (

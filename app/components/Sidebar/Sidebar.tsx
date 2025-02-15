@@ -74,11 +74,11 @@ export function Sidebar({ protos = [], onMethodSelected, onProtoUpload, onDelete
       }
 
       // Handle case where fileName is undefined
-      const fileName = fragments[0] === 'undefined' ? 'user.proto' : fragments[0];
+      // const fileName = fragments[0] === 'undefined' ? 'user.proto' : fragments[0];
       const methodName = fragments[1].replace('method:', '');
       const serviceName = fragments[2].replace('service:', '');
 
-      console.log('Looking for service:', { fileName, methodName, serviceName });
+      // console.log('Looking for service:', { fileName, methodName, serviceName });
 
       const protodef = protos.find((protoFile) => {
         console.log('Checking proto file:', {

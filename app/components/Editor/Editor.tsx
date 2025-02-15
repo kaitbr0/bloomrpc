@@ -159,7 +159,12 @@ const reducer = (state: EditorState, action: EditorAction) => {
 };
 
 export function Editor({ protoInfo, initialRequest, onRequestChange, onEnvironmentListChange, environmentList, active }: EditorProps) {
-  console.log('Editor rendering with:', { protoInfo, initialRequest });
+  console.log('NEW: Editor rendering with protoInfo:', {
+    hasProtoInfo: !!protoInfo,
+    serviceName: protoInfo?.service?.serviceName,
+    methodName: protoInfo?.methodName
+  });
+
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
     url: (initialRequest && initialRequest.url) || getUrl() || INITIAL_STATE.url,

@@ -69,20 +69,23 @@ export function getUrl(): string | void {
 
 export function storeProtos(protos: ProtoFile[]) {
   if (!editorStore) return;
-  console.log('Storing protos:', protos);
+  console.log('Storing protos, AST before storage:', protos[0].proto.ast);
   const storedProtos = protos.map(p => ({
     fileName: p.fileName,
     services: p.services,
-    proto: p.proto
+    proto: {
+      ...p.proto,
+      ast: p.proto.ast  // Make sure AST is explicitly included
+    }
   }));
-  console.log('Storing formatted protos:', storedProtos);
+  console.log('Protos after preparing for storage:', storedProtos[0].proto.ast);
   editorStore.set(KEYS.PROTOS, storedProtos);
 }
 
 export function getProtos(): ProtoFile[] | void {
   if (!editorStore) return;
-  const stored = editorStore.get(KEYS.PROTOS);
-  console.log('Retrieved stored protos:', stored);
+  const stored = editorStore.get(KEYS.PROTOS) as ProtoFile[];  // Add type assertion
+  console.log('Retrieved protos from storage:', stored);
   return stored;
 }
 

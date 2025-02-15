@@ -130,9 +130,32 @@ export async function loadProtoFromReflection(host: string, onProtoUploaded?: On
  */
 export async function loadProtosFromFile(filePaths: string[], importPaths?: string[], onProtoUploaded?: OnProtoUpload): Promise<ProtoFile[]> {
   try {
-    console.log('Loading proto files:', filePaths);
     const protos = await Promise.all(filePaths.map(async (fileName) => {
-      // First load with protobufjs for method definitions
+      // Load the proto file using proto-loader for gRPC client
+      const packageDefinition = await load(fileName, {
+        keepCase: true,
+        longs: String,
+        enums: String,
+        defaults: true,
+        oneofs: true,
+        includeDirs: [...(importPaths || []), ...commonProtosPath]
+      });
+
+      console.log('Package definition loaded:', {
+        hasPackage: !!packageDefinition,
+        keys: Object.keys(packageDefinition)
+      });
+
+      // Generate the gRPC service definitions
+      const ast = loadPackageDefinition(packageDefinition);
+      console.log('AST generated:', {
+        hasAst: !!ast,
+        keys: Object.keys(ast),
+        hasBackend: !!ast.backend,
+        services: ast.backend ? Object.keys(ast.backend) : []
+      });
+      
+      // Create the root for protobuf.js (for method definitions)
       const root = new Root();
       root.resolvePath = (origin, target) => {
         const paths = [...(importPaths || []), ...commonProtosPath];
@@ -151,36 +174,32 @@ export async function loadProtosFromFile(filePaths: string[], importPaths?: stri
         preferTrailingComment: true
       });
 
-      // Load the proto file using proto-loader for gRPC client
-      const packageDefinition = await load(fileName, {
-        keepCase: true,
-        longs: String,
-        enums: String,
-        defaults: true,
-        oneofs: true,
-        includeDirs: [...(importPaths || []), ...commonProtosPath]
+      // Attach AST to the root object
+      (parsed.root as Proto).ast = ast;
+      console.log('After attaching AST:', {
+        hasAst: !!(parsed.root as Proto).ast,
+        serviceName: 'backend.CDN' in ast ? 'Found service' : 'No service'
       });
-      // Generate the gRPC service definitions
-      const ast = loadPackageDefinition(packageDefinition);
+
       return {
-        root: parsed.root,  // Use the parsed root with method definitions
-        ast   // Store the generated service definitions
+        root: parsed.root,
+        ast
       };
     }));
 
     const protoList = protos.reduce((list: ProtoFile[], proto: any) => {
-      console.log('Processing proto:', proto);
       const services = parseServices(proto.root);
-      console.log('Found services:', services);
       list.push({
-        proto: proto.root as Proto,
+        proto: {
+          ast: proto.ast,
+          ...proto.root,
+        } as Proto,
         fileName: path.basename(filePaths[protos.indexOf(proto)]),
         services,
       });
       return list;
     }, []);
 
-    console.log('Final proto list:', protoList);
     onProtoUploaded && onProtoUploaded(protoList, undefined);
     return protoList;
   } catch (e) {
@@ -219,13 +238,22 @@ function walkServices(proto: Proto, onService: (service: Service, root: Proto, s
 
 function parseServices(proto: Proto) {
   const services: {[key: string]: ProtoService} = {};
+  console.log('parseServices input:', {
+    hasAst: !!proto.ast,
+    services: Object.keys(proto.ast || {})
+  });
+
   walkServices(proto, (service: Service, _, serviceName: string) => {
     services[serviceName] = {
       serviceName: serviceName,
-      proto,
+      proto: proto,
       methodsMocks: {},
       methodsName: Object.keys(service.methods || {}),
     };
+  });
+  console.log('parseServices output:', {
+    serviceNames: Object.keys(services),
+    firstService: services[Object.keys(services)[0]]?.proto.ast ? 'Has AST' : 'No AST'
   });
   return services;
 }

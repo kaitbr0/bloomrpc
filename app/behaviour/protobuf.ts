@@ -1,11 +1,10 @@
-import {Root, Message} from 'protobufjs';
-import {GrpcObject} from '@grpc/grpc-js';
+import { Root, Message } from 'protobufjs';
 
 export interface Proto extends Root {
   fileName?: string;
   filePath?: string;
   protoText?: string;
-  ast?: GrpcObject;
+  ast?: any;
   nested?: {[k: string]: any};
 }
 
