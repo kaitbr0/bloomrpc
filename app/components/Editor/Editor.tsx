@@ -159,11 +159,6 @@ const reducer = (state: EditorState, action: EditorAction) => {
 };
 
 export function Editor({ protoInfo, initialRequest, onRequestChange, onEnvironmentListChange, environmentList, active }: EditorProps) {
-  console.log('NEW: Editor rendering with protoInfo:', {
-    hasProtoInfo: !!protoInfo,
-    serviceName: protoInfo?.service?.serviceName,
-    methodName: protoInfo?.methodName
-  });
 
   const [state, dispatch] = useReducer(reducer, {
     ...INITIAL_STATE,
@@ -179,22 +174,9 @@ export function Editor({ protoInfo, initialRequest, onRequestChange, onEnvironme
       try {
         // Get the method definition first
         const methodDef = protoInfo.methodDef();
-        console.log('Method definition:', {
-          name: methodDef.name,
-          requestType: methodDef.requestType,
-          responseType: methodDef.responseType
-        });
 
         // Look up the request type using the correct type name
         const requestType = protoInfo.service.proto.lookupType(methodDef.requestType);
-        console.log('Found request type:', {
-          name: requestType.name,
-          fields: Object.entries(requestType.fields).map(([name, field]) => ({
-            name,
-            type: field.type,
-            isMessage: field.resolvedType?.name
-          }))
-        });
 
         // Generate mock data based on field types
         function generateMockData(type: any): Record<string, any> {
@@ -255,13 +237,6 @@ export function Editor({ protoInfo, initialRequest, onRequestChange, onEnvironme
       dispatch(setTSLCertificate(initialRequest.tlsCertificate));
     }
   }, []);
-
-  console.log('Editor rendering ProtoFileViewer with:', {
-    protoInfo: protoInfo ? {
-      fileName: protoInfo.service.proto.filename,
-      serviceName: protoInfo.service.serviceName
-    } : null
-  });
 
   return (
     <div style={styles.tabContainer}>

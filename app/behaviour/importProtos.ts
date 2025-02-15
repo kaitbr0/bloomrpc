@@ -23,9 +23,7 @@ export type OnProtoUpload = (protoFiles: ProtoFile[], err?: Error) => void
  */
 export async function importProtos(onProtoUploaded?: OnProtoUpload, importPaths?: string[]): Promise<string[]> {
   try {
-    console.log('Renderer: Calling open-file-dialog');
     const filePaths = await ipcRenderer.invoke('open-file-dialog');
-    console.log('Renderer: Got result:', filePaths);
     
     if (filePaths && onProtoUploaded) {
       await loadProtosFromFile(filePaths, importPaths, onProtoUploaded);

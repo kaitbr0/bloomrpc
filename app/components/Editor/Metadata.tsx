@@ -21,18 +21,18 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
 
   return (
     <Resizable
-        size={{width: "100%", height: height}}
-        maxHeight={500}
-        minHeight={38}
-        enable={{top:true, right:false, bottom:true, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false}}
-        onResizeStop={(e, direction, ref, d) => {
-          setHeight(height + d.height);
-        }}
-        className="meatada-panel"
-         style={{
-           ...styles.optionContainer,
-           ...{bottom: `0px`, height: `${height}px`},
-         }}
+      size={{width: "100%", height: height}}
+      maxHeight={500}
+      minHeight={38}
+      enable={{top:true, right:false, bottom:true, left:false, topRight:false, bottomRight:false, bottomLeft:false, topLeft:false}}
+      onResizeStop={(e, direction, ref, d) => {
+        setHeight(height + d.height);
+      }}
+      className="meatada-panel"
+      style={{
+        ...styles.optionContainer,
+        height: height
+      }}
     >
       <div>
         <div style={styles.optionLabel}>
@@ -51,20 +51,19 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
         </div>
 
         <div style={styles.metadataContainer}>
-          {
           <AceEditor
             style={{ background: "#fff" }}
             width={"100%"}
-            height={"100%"}
+            height={`${height - 38}px`}
             mode="json"
             theme="textmate"
             name="metadata"
             fontSize={13}
+            value={value}
             onChange={onMetadataChange}
             showPrintMargin={false}
             showGutter
             highlightActiveLine={false}
-            value={value}
             setOptions={{
               useWorker: false,
               showLineNumbers: false,
@@ -74,7 +73,6 @@ export function Metadata({ onClickMetadata, onMetadataChange, value }: MetadataP
               displayIndentGuides: false
             }}
           />
-          }
         </div>
       </div>
     </Resizable>
@@ -89,6 +87,9 @@ const styles = {
   },
   optionContainer: {
     position: "absolute" as "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
     fontWeight: 900,
     fontSize: "13px",
     borderLeft: "1px solid rgba(0, 21, 41, 0.18)",
