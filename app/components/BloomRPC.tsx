@@ -199,19 +199,14 @@ async function loadTabs(editorTabs: EditorTabsStorage): Promise<EditorTabs> {
   };
 
   const importPaths = getImportPaths();
-  console.log('Import paths for tabs:', importPaths);
 
   const protoPaths = editorTabs.tabs.map((tab) => {
-    console.log('Processing tab:', tab);
     return tab.protoPath;
   });
-  console.log('Proto paths:', protoPaths);
 
   const protos = await loadProtos(protoPaths, importPaths);
-  console.log('Loaded protos:', protos);
 
   const previousTabs = editorTabs.tabs.map((tab) => {
-    console.log('Processing tab for services:', tab);
     const def = protos.find((protoFile) => {
       const match = Object.keys(protoFile.services).find((service) => service === tab.serviceName);
       return Boolean(match);
@@ -231,6 +226,7 @@ async function loadTabs(editorTabs: EditorTabsStorage): Promise<EditorTabs> {
   });
 
   storedEditTabs.tabs = previousTabs.filter((tab) => tab) as TabData[];
+  // TODO: fix storage, figure it out
   console.log('Final stored tabs:', storedEditTabs);
 
   return storedEditTabs;

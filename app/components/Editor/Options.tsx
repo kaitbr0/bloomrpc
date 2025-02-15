@@ -74,8 +74,12 @@ export function Options({ protoInfo, dispatch, grpcWebChecked, interactiveChecke
               open={tlsModalVisible}
               onCancel={() => setTlsModalVisible(false)}
               onOk={() => setTlsModalVisible(false)}
-              bodyStyle={{padding: 0}}
-              width={750}
+              styles={{
+                body: {
+                  padding: 0,
+                  width: 750
+                }
+              }}
               okText={"Done"}
               cancelText={"Close"}
           >

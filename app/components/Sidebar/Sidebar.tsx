@@ -155,7 +155,7 @@ export function Sidebar({ protos = [], onMethodSelected, onProtoUpload, onDelete
         <div style={{width: "50%"}}>
           <Tooltip title="Reload" placement="bottomLeft" align={{offset: [-8, 0]}}>
             <Button
-              type="ghost"
+              type="default"
               style={{height: 24, paddingRight: 5, paddingLeft: 5}}
               onClick={onReload}
             >
@@ -165,7 +165,7 @@ export function Sidebar({ protos = [], onMethodSelected, onProtoUpload, onDelete
 
           <Tooltip title="Import Paths" placement="bottomLeft" align={{offset: [-8, 0]}}>
             <Button
-                type="ghost"
+                type="default"
                 style={{height: 24, paddingRight: 5, paddingLeft: 5, marginLeft: 5}}
                 onClick={() => setImportPathsVisible(true)}
             >
@@ -175,7 +175,7 @@ export function Sidebar({ protos = [], onMethodSelected, onProtoUpload, onDelete
 
           <Tooltip title="Filter method names" placement="bottomLeft" align={{offset: [-8, 0]}}>
             <Button
-              type="ghost"
+              type="default"
               style={{height: 24, paddingRight: 5, paddingLeft: 5, marginLeft: 5}}
               onClick={() => toggleFilter()}
             >
@@ -193,8 +193,12 @@ export function Sidebar({ protos = [], onMethodSelected, onProtoUpload, onDelete
               open={importPathVisible}
               onCancel={() => setImportPathsVisible(false)}
               onOk={() => setImportPathsVisible(false)}
-              bodyStyle={{padding: 0}}
-              width={750}
+              styles={{
+                body: {
+                  padding: 0,
+                  width: 750
+                }
+              }}
               footer={[
                 <Button key="back" onClick={() => setImportPathsVisible(false)}>Close</Button>
               ]}
@@ -230,7 +234,7 @@ export function Sidebar({ protos = [], onMethodSelected, onProtoUpload, onDelete
         </div>
         <div style={{width: "50%", textAlign: "right"}}>
           <Tooltip title="Delete all" placement="bottomRight" align={{offset: [10, 0]}}>
-            <Button type="ghost" style={{height: 24, paddingRight: 5, paddingLeft: 5}} onClick={onDeleteAll}>
+            <Button type="default" style={{height: 24, paddingRight: 5, paddingLeft: 5}} onClick={onDeleteAll}>
               <DeleteOutlined style={{cursor: "pointer", color: "red" }} />
             </Button>
           </Tooltip>

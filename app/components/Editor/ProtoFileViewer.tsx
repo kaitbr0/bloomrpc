@@ -48,9 +48,6 @@ export function ProtoFileViewer({ protoInfo, visible, onClose }: ProtoFileViewer
       onClose={onClose}
       open={visible}
     >
-      {/* <pre style={{ marginTop: "10px", background: "#fff", padding: "10px", height: "calc(100vh - 115px)", overflow: "auto" }}>
-        {protoText}
-      </pre> */}
       {
       <AceEditor
         style={{ marginTop: "10px", background: "#fff" }}

@@ -29,12 +29,6 @@ export const makeRequest = ({ dispatch, state, protoInfo }: ControlsStateProps) 
   // Play button action:
   dispatch(setIsLoading(true));
 
-  console.log('Creating gRPC request with:', {
-    url: state.url,
-    hasProtoInfo: !!protoInfo,
-    serviceName: protoInfo.service.serviceName,
-    methodName: protoInfo.methodName
-  });
 
   let grpcRequest : GRPCEventEmitter
   if (state.grpcWeb){
@@ -56,8 +50,6 @@ export const makeRequest = ({ dispatch, state, protoInfo }: ControlsStateProps) 
       tlsCertificate: state.tlsCertificate,
     });
   }
-
-  console.log('Created gRPC request, about to call send()');
 
   dispatch(setCall(grpcRequest));
 
@@ -102,10 +94,6 @@ export const makeRequest = ({ dispatch, state, protoInfo }: ControlsStateProps) 
   });
 
   try {
-    console.log('About to call send() on request:', {
-      hasRequest: !!grpcRequest,
-      type: grpcRequest?.constructor?.name
-    });
     grpcRequest.send();
   } catch(e) {
     console.error('Error sending request:', e);
@@ -132,7 +120,6 @@ export function PlayButton({ dispatch, state, protoInfo, active }: ControlsState
       if (state.loading) {
         return
       }
-      console.log('NEW: PlayButton useEffect triggered. protoInfo: ', protoInfo);
       makeRequest({ dispatch, state, protoInfo })
     })
   }, [
@@ -152,7 +139,6 @@ export function PlayButton({ dispatch, state, protoInfo, active }: ControlsState
       <PauseCircleFilled style={{ ...styles.playIcon, color: "#ea5d5d" }} onClick={() => makeRequest({ dispatch, state, protoInfo })} /> 
       : 
       <PlayCircleFilled style={styles.playIcon} onClick={() => {
-        console.log('Play button clicked with protoInfo:', protoInfo);
         makeRequest({ dispatch, state, protoInfo });
       }} />
   );

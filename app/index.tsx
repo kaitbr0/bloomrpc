@@ -31,17 +31,14 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
 }
 
 const rootElement = document.getElementById('root');
-console.log('Root element:', rootElement);
 
 try {
-  console.log('Attempting to render...');
   render(
     <ErrorBoundary>
       <BloomRPC />
     </ErrorBoundary>,
     rootElement
   );
-  console.log('Render complete');
 } catch (error) {
   console.error('Render error:', error);
 }
