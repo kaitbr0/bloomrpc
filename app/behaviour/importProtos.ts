@@ -6,6 +6,8 @@ import { credentials } from '@grpc/grpc-js';
 import isURL from 'validator/lib/isURL';
 import { ipcRenderer } from 'electron';
 import * as fs from 'fs';
+import { load } from '@grpc/proto-loader';
+import { loadPackageDefinition } from '@grpc/grpc-js';
 
 const commonProtosPath = [
     // @ts-ignore
@@ -130,6 +132,7 @@ export async function loadProtosFromFile(filePaths: string[], importPaths?: stri
   try {
     console.log('Loading proto files:', filePaths);
     const protos = await Promise.all(filePaths.map(async (fileName) => {
+      // First load with protobufjs for method definitions
       const root = new Root();
       root.resolvePath = (origin, target) => {
         const paths = [...(importPaths || []), ...commonProtosPath];
@@ -142,14 +145,27 @@ export async function loadProtosFromFile(filePaths: string[], importPaths?: stri
         return target;
       };
       const content = await fs.promises.readFile(fileName, 'utf8');
-      console.log('Proto content:', content.substring(0, 100) + '...'); // Show start of file
       const parsed = parse(content, root, {
         keepCase: true,
         alternateCommentMode: true,
         preferTrailingComment: true
       });
-      (parsed.root as any).ast = parsed.root.nested;
-      return parsed;
+
+      // Load the proto file using proto-loader for gRPC client
+      const packageDefinition = await load(fileName, {
+        keepCase: true,
+        longs: String,
+        enums: String,
+        defaults: true,
+        oneofs: true,
+        includeDirs: [...(importPaths || []), ...commonProtosPath]
+      });
+      // Generate the gRPC service definitions
+      const ast = loadPackageDefinition(packageDefinition);
+      return {
+        root: parsed.root,  // Use the parsed root with method definitions
+        ast   // Store the generated service definitions
+      };
     }));
 
     const protoList = protos.reduce((list: ProtoFile[], proto: any) => {

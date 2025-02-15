@@ -12,6 +12,9 @@ export class ProtoInfo {
   }
 
   client(): any {
+    console.log('Proto AST:', this.service.proto.ast);
+    console.log('Service Name:', this.service.serviceName);
+    // Get the service client from the AST
     return lodashGet(this.service.proto.ast, this.service.serviceName);
   }
 
