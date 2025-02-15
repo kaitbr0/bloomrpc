@@ -32,33 +32,25 @@ const arrayMove = <T,>(array: T[], from: number, to: number): T[] => {
 };
 
 export function BloomRPC() {
-  console.log('BloomRPC component starting render');
-
-  const [protos, setProtosState] = useState<ProtoFile[]>([]);
-  console.log('protos initialized:', protos);
-
+  const [protos, setProtos] = useState<ProtoFile[]>([]);
   const [editorTabs, setEditorTabs] = useState<EditorTabs>({
     activeKey: "0",
     tabs: [],
   });
-  console.log('editorTabs initialized:', editorTabs);
-
   const [environments, setEnvironments] = useState<EditorEnvironment[]>(getEnvironments());
-  console.log('environments initialized:', environments);
 
   function setTabs(props: EditorTabs) {
     setEditorTabs(props);
     storeTabs(props);
   }
 
-  function setProtos(props: ProtoFile[]) {
-    setProtosState(props);
+  function updateProtos(props: ProtoFile[]) {
+    setProtos(props);
     storeProtos(props);
   }
 
   // Preload editor with stored data.
   useEffect(() => {
-    console.log('BloomRPC useEffect running');
     hydrateEditor(setProtos, setTabs);
   }, []);
 

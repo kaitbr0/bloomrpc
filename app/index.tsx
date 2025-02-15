@@ -3,7 +3,6 @@ import { render } from 'react-dom';
 import './app.global.scss';
 import { BloomRPC } from './components/BloomRPC';
 
-console.log('index.tsx starting...');
 
 // TODO: Import ace and configure workers when we implement proper syntax highlighting
 
@@ -14,6 +13,7 @@ class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasErr
   }
 
   static getDerivedStateFromError(error: any) {
+    console.log('ErrorBoundary caught error:', error);
     return { hasError: true, error };
   }
 
@@ -40,5 +40,9 @@ try {
     rootElement
   );
 } catch (error) {
-  console.error('Render error:', error);
+  console.error('Render error:', {
+    error,
+    message: error.message,
+    stack: error.stack
+  });
 }
